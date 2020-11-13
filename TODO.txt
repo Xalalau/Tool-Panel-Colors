@@ -1,0 +1,6 @@
+1) Add nice indicators (with text and color) to the type selector
+2) Add a customized menu preview
+3) Add proper multiplayer support:
+	-- Apply the current colors on all players (server/admin)
+	-- Use custom client colors over the server selection (client)
+4) Choose a default new color (so players will know that the addon is working)
