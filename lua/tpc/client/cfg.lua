@@ -40,7 +40,7 @@ TPC.defaultTools = {
 }
 
 TPC.options = {
-    ["Default"] = {
+    ["[Default]"] = {
         tpc_gmod_even_r = "255",
         tpc_gmod_even_g = "255",
         tpc_gmod_even_b = "255",
