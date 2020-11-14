@@ -51,38 +51,66 @@ function TPC:CreateMenu(CPanel)
         end
 
     local previewSize = 50
+    local sectionHeight = 25
     local previewColorsPanel = vgui.Create("DPanel", CPanel)
         previewColorsPanel:Dock(TOP)
-        previewColorsPanel:SetSize(previewSize * 4, previewSize)
+        previewColorsPanel:SetSize(previewSize * 4, previewSize + sectionHeight)
         previewColorsPanel:DockMargin(10, 10, 10, 0)
         previewColorsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
-    local function SelectColorMixer(newPnl)
-        for _,tpnl in pairs(colorControls) do
-            for _,lpnl in pairs(tpnl) do
+    local function SelectColorMixer(pressedButton, newMixer)
+        for type,tpnl in pairs(colorControls) do
+            for line,lpnl in pairs(tpnl) do
                 if lpnl:IsVisible() then
-                    lpnl:Hide()
+                    lpnl:Hide() -- Old mixer
+                    previewColors[type][line].background:Hide() -- Last pressed button background
                     break
                 end
             end
         end
 
-        newPnl:Show()
+        newMixer:Show()
+        pressedButton.background:Show()
     end
+
+    local section1 = vgui.Create( "DLabel", previewColorsPanel)
+        section1:SetSize(previewSize * 2, sectionHeight)
+        section1:SetText("       Default tools")
+        section1:SetTextColor(color_black)
+
+    local divider = vgui.Create( "DLabel", previewColorsPanel)
+        divider:SetSize(previewSize * 2, sectionHeight)
+        divider:SetPos(section1:GetWide() - 4, 0)
+        divider:SetText("||")
+        divider:SetTextColor(color_black)
+
+    local section2 = vgui.Create( "DLabel", previewColorsPanel)
+        section2:SetSize(previewSize * 2, sectionHeight)
+        section2:SetPos(section1:GetWide(), 0)
+        section2:SetText("      Custom tools")
+        section2:SetTextColor(color_black)
 
     local function SetColorButton(type, line, position)
-        previewColors[type][line] = vgui.Create("DColorButton", previewColorsPanel)
-            previewColors[type][line]:SetPos(previewSize * position, 0)
-            previewColors[type][line]:SetSize(previewSize, previewSize)
+        local background = vgui.Create("DPanel", previewColorsPanel)
+            background:SetPos(previewSize * position, sectionHeight)
+            background:SetSize(previewSize, previewSize)
+            background:SetBackgroundColor(Color(0, 0, 0, 255))
+            background:Hide()
+
+            previewColors[type][line] = vgui.Create("DColorButton", previewColorsPanel)
+            previewColors[type][line].background = background
+            previewColors[type][line]:SetPos(previewSize * position + 2, sectionHeight + 2)
+            previewColors[type][line]:SetSize(previewSize - 4, previewSize - 4)
             previewColors[type][line]:Paint(previewSize, previewSize)
-            previewColors[type][line]:SetText(" " .. type .. "\n " .. line)
             previewColors[type][line]:SetColor(self:GetNewToolColors(type)[line])
             previewColors[type][line].DoClick = function(self)
-                SelectColorMixer(colorControls[type][line])
+                SelectColorMixer(previewColors[type][line], colorControls[type][line])
             end
+
+        return previewColors[type][line]
     end
 
-    SetColorButton("GMod", "even", 0)
+    SetColorButton("GMod", "even", 0).background:Show()
     SetColorButton("GMod", "odd", 1)
     SetColorButton("Others", "even", 2)
     SetColorButton("Others", "odd", 3)
