@@ -27,7 +27,10 @@ function TPC:CreateMenu(CPanel)
         presets:SetPreset("tpc")
         for k, v in pairs(self.options) do
             presets:AddOption(k, v)
-            presets:AddConVar(k)
+
+            for cvar,_ in pairs(v) do
+                presets:AddConVar(cvar)
+            end
         end
         presets.OnSelect = function(self, index, text, data)
             for k,v in pairs(data) do
@@ -140,4 +143,4 @@ function TPC:Test()
 
     self:CreateMenu(test)
 end
---TPC:Test() -- Uncomment and save after the map loading
+TPC:Test() -- Uncomment and save after the map loading
