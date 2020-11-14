@@ -171,4 +171,4 @@ function TPC:Test()
 
     self:CreateMenu(test)
 end
-TPC:Test() -- Uncomment and save after the map loading
+--TPC:Test() -- Uncomment and save after the map loading
