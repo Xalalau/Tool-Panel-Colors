@@ -3,19 +3,12 @@
     https://xalalau.com/
 --]]
 
-function TPC:CreateMenu(CPanel)
-    if CPanel.Help then -- If testing
-        CPanel:Help("Customize your tool panel colors!")
-    end
-
-    local colorControls = table.Copy(self.colors)
-    local previewColors = table.Copy(self.colors)
-
+local function AddPresets(CPanel, previewColors)
     local presets = vgui.Create("ControlPresets", CPanel)
         presets:Dock(TOP)
         presets:DockMargin(10, 10, 10, 0)
         presets:SetPreset("tpc")
-        for k, v in pairs(self.options) do
+        for k, v in pairs(TPC.options) do
             presets:AddOption(k, v)
 
             for cvar,_ in pairs(v) do
@@ -39,7 +32,9 @@ function TPC:CreateMenu(CPanel)
                 end
             end
         end
+end
 
+local function AddColorSelector(CPanel, colorControls, previewColors)
     local previewSize = 50
     local sectionHeight = 25
     local previewColorsPanel = vgui.Create("DPanel", CPanel)
@@ -94,7 +89,7 @@ function TPC:CreateMenu(CPanel)
             previewColors[toolType][lineType]:SetPos(previewSize * position + 2, sectionHeight + 2)
             previewColors[toolType][lineType]:SetSize(previewSize - 4, previewSize - 4)
             previewColors[toolType][lineType]:Paint(previewSize, previewSize)
-            previewColors[toolType][lineType]:SetColor(self.colors[toolType][lineType])
+            previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             previewColors[toolType][lineType].DoClick = function(self)
                 SelectColorMixer(previewColors[toolType][lineType], colorControls[toolType][lineType])
             end
@@ -124,10 +119,10 @@ function TPC:CreateMenu(CPanel)
             colorControls[toolType][lineType]:SetConVarG("tpc_" .. toolType .. "_" .. lineType .. "_g")
             colorControls[toolType][lineType]:SetConVarB("tpc_" .. toolType .. "_" .. lineType .. "_b")
             colorControls[toolType][lineType]:SetConVarA("tpc_" .. toolType .. "_" .. lineType .. "_a")
-            colorControls[toolType][lineType]:SetColor(self.colors[toolType][lineType])
+            colorControls[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             colorControls[toolType][lineType]:Hide()
             colorControls[toolType][lineType].ValueChanged = function()
-                previewColors[toolType][lineType]:SetColor(self.colors[toolType][lineType])
+                previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
                 TPC:SetNewToolColors()
             end
     end
@@ -144,7 +139,7 @@ function TPC:CreateMenu(CPanel)
     local toolEntryHeight = 17
     local fakeToolsListPanel = vgui.Create("DPanel", CPanel)
         fakeToolsListPanel:Dock(TOP)
-        fakeToolsListPanel:SetTall(#self.fakeToolsList * toolEntryHeight)
+        fakeToolsListPanel:SetTall(#TPC.fakeToolsList * toolEntryHeight)
         fakeToolsListPanel:DockMargin(10, 10, 10, 0)
         fakeToolsListPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
@@ -178,11 +173,23 @@ function TPC:CreateMenu(CPanel)
         DCollapsible:SetWide(toolEntryWidth)
         DCollapsible:SetExpanded(true)
 
-    for k,v in ipairs(self.fakeToolsList) do
+    for k,v in ipairs(TPC.fakeToolsList) do
         local lineType = k % 2 == 0 and "even" or "odd"
 
         SimulateToolList(k, v[1], lineType, v[2], fakeToolsListPanel)
     end
+end
+
+function TPC:CreateMenu(CPanel)
+    if CPanel.Help then -- If testing
+        CPanel:Help("Customize your tool panel colors!")
+    end
+
+    local colorControls = table.Copy(TPC.colors)
+    local previewColors = table.Copy(TPC.colors)
+
+    AddPresets(CPanel, previewColors)
+    AddColorSelector(CPanel, colorControls, previewColors)
 
     if CPanel.Help then -- If testing
         CPanel:Help("")
@@ -210,4 +217,4 @@ function TPC:Test()
 
     self:CreateMenu(test)
 end
---TPC:Test() -- Uncomment and save after the map loading
+--TPC:Test() -- Uncomment and save after the map loads
