@@ -46,4 +46,6 @@ if SERVER then
 end
 includeModules(TPC.FOLDER.CL_MODULES, true)
 
-TPC:SetNewToolColors()
+if CLIENT then
+    TPC:SetNewToolColors()
+end
