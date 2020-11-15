@@ -104,14 +104,14 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
                     surface.DrawRect(0, 0, w, h)
                 end
             end
-
-        return previewColors[toolType][lineType]
     end
 
-    SetColorButton("GMod", "odd", 0).background:Show()
+    SetColorButton("GMod", "odd", 0)
     SetColorButton("GMod", "even", 1)
     SetColorButton("Others", "odd", 2)
     SetColorButton("Others", "even", 3)
+
+    previewColors.GMod.odd.background:Show()
 
     local colorMixerHeight = 165
     local colorControlsPanel = vgui.Create("DPanel", CPanel)
@@ -144,7 +144,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         end
     end
 
-    colorControls.GMod.even:Show()
+    colorControls.GMod.odd:Show()
 
     local toolEntryWidth = 161
     local toolEntryHeight = 17
