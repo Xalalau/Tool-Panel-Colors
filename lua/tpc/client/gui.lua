@@ -93,6 +93,17 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             previewColors[toolType][lineType].DoClick = function(self)
                 SelectColorMixer(previewColors[toolType][lineType], colorControls[toolType][lineType])
             end
+            local pnlAux = previewColors[toolType][lineType]
+            pnlAux._Paint = pnlAux.Paint
+            pnlAux.odd = lineType == "odd" and true or false
+            function pnlAux:Paint(w, h)
+                self:_Paint(w, h)
+
+                if pnlAux.odd then
+                    surface.SetDrawColor(Color(0, 0, 0, 27))
+                    surface.DrawRect(0, 0, w, h)
+                end
+            end
 
         return previewColors[toolType][lineType]
     end
