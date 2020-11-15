@@ -1,5 +1,7 @@
-- Add a customized menu preview
+- Better explain this odd/even (darker/lighter) thing in the legends
+- Add proper markers on the selected panels
+- Add rendering support for the color mixers textboxes
 - Add proper multiplayer support:
 	-- Apply the current colors on all players (server/admin)
 	-- Use custom client colors over the server selection (client)
-- Choose a default new color (so players will know that the addon is working)
+- Choose a default new color (so new players will know that the addon is working)
