@@ -30,7 +30,20 @@ local function includeModules(dir, isClientModule)
     end 
 end
 
+TPC.colors = {
+    GMod = { 
+        even = true,
+        odd = true
+    },
+    Others = {
+        even = true,
+        odd = true
+    }
+}
+
 if SERVER then
     includeModules(TPC.FOLDER.SV_MODULES)
 end
 includeModules(TPC.FOLDER.CL_MODULES, true)
+
+TPC:SetNewToolColors()

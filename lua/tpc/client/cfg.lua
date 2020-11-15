@@ -39,6 +39,24 @@ TPC.defaultTools = {
     ["trails"] = true
 }
 
+TPC.fakeToolsList = {
+    { "GMod", "Axis" },
+    { "GMod", "Ball Socket" },
+    { "GMod", "Elastic" },
+    { "GMod", "Hydraulic" },
+    { "GMod", "Motor" },
+    { "Others", "Custom Tool 1" },
+    { "Others", "Custom Tool 2" },
+    { "GMod", "Muscle" },
+    { "GMod", "Pulley" },
+    { "Others", "Custom Tool 3" },
+    { "GMod", "Rope" },
+    { "Others", "Custom Tool 4" },
+    { "Others", "Custom Tool 5" },
+    { "Others", "Custom Tool 6" },
+    { "Others", "Custom Tool 7" },
+}
+
 TPC.options = {
     ["[Default]"] = {
         tpc_gmod_even_r = "255",

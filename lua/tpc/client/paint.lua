@@ -20,54 +20,59 @@ CreateClientConVar("tpc_others_odd_g", "116")
 CreateClientConVar("tpc_others_odd_b", "255")
 CreateClientConVar("tpc_others_odd_a", "85")
 
-function TPC:GetNewToolColors(toolType)
-    return {
-        odd = Color(
-            GetConVar("tpc_" .. string.lower(toolType) .. "_odd_r"):GetInt(),
-            GetConVar("tpc_" .. string.lower(toolType) .. "_odd_g"):GetInt(),
-            GetConVar("tpc_" .. string.lower(toolType) .. "_odd_b"):GetInt(),
-            GetConVar("tpc_" .. string.lower(toolType) .. "_odd_a"):GetInt()
-        ),
-        even = Color(
-            GetConVar("tpc_" .. string.lower(toolType) .. "_even_r"):GetInt(),
-            GetConVar("tpc_" .. string.lower(toolType) .. "_even_g"):GetInt(),
-            GetConVar("tpc_" .. string.lower(toolType) .. "_even_b"):GetInt(),
-            GetConVar("tpc_" .. string.lower(toolType) .. "_even_a"):GetInt()
+-- Store the new color completely in an internal variable for easy access
+function TPC:SetNewToolColors()
+    local function GetCurrentColors(toolType, lineType)
+        return Color(
+                GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_r"):GetInt(),
+                GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_g"):GetInt(),
+                GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_b"):GetInt(),
+                GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_a"):GetInt()
         )
-    }
+    end
+
+    for toolType,lineTypeTable in pairs(self.colors) do
+        for lineType,_ in pairs(lineTypeTable) do
+            self.colors[toolType][lineType] = GetCurrentColors(toolType, lineType)
+        end
+    end
 end
 
-function TPC:PaintMenus()
+function TPC:SetPaint(pnl, toolType, lineType)
+    pnl._Paint = pnl._Paint or pnl.Paint
+
+    function pnl:Paint(w, h)
+        surface.SetDrawColor(TPC.colors[toolType][lineType])
+        surface.DrawRect(0, 0, w, h)
+
+        return self:_Paint(w, h)
+    end
+end
+
+function TPC:PaintToolPanel()
     local toolPanelList = g_SpawnMenu.ToolMenu.ToolPanels[1].List
     local odd
 
     for _, col in ipairs(toolPanelList.pnlCanvas:GetChildren()) do
         for __, pnl in ipairs(col:GetChildren()) do
             if pnl.ClassName ~= "DCategoryHeader" then
-                local toolType = self.defaultTools[pnl.Name] and self:GetNewToolColors("GMod") or self:GetNewToolColors("Others")
-                local toolColor = toolType[pnl.odd and "odd" or "even"]
+                odd = not odd and true or false
 
-                pnl._Paint = pnl._Paint or pnl.Paint
-                pnl.odd = not odd and true or false
-                odd = pnl.odd
+                local toolType = self.defaultTools[pnl.Name] and "GMod" or "Others"
+                local lineType = odd and "odd" or "even"
 
-                function pnl:Paint(w, h)
-                    surface.SetDrawColor(toolColor)
-                    surface.DrawRect(0, 0, w, h)
-
-                    return self:_Paint(w, h)
-                end
+                self:SetPaint(pnl, toolType, lineType)
             else
                 odd = false
             end
-
-            col:InvalidateLayout() -- Checar se isso é útil
-            toolPanelList.pnlCanvas:InvalidateLayout()
         end
+
+        col:InvalidateLayout() -- Checar se isso é útil
+        toolPanelList.pnlCanvas:InvalidateLayout()
     end
 end
 
 hook.Add("PostReloadToolsMenu", "PaintMenus", function()
-    TPC:PaintMenus()
-    TPC:PaintMenus() -- HACK: this will force the menu to show the correct colors
+    TPC:PaintToolPanel()
+    TPC:PaintToolPanel() -- HACK: this will force the menu to show the correct colors
 end)

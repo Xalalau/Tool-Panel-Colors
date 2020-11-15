@@ -4,22 +4,12 @@
 --]]
 
 function TPC:CreateMenu(CPanel)
-    if CPanel.Help then -- Disabled if testing
+    if CPanel.Help then -- If testing
         CPanel:Help("Customize your tool panel colors!")
     end
 
-    local colorControls = {
-        GMod = { 
-            even = true,
-            odd = true
-        },
-        Others = {
-            even = true,
-            odd = true
-        }
-    }
-
-    local previewColors = table.Copy(colorControls)
+    local colorControls = table.Copy(self.colors)
+    local previewColors = table.Copy(self.colors)
 
     local presets = vgui.Create("ControlPresets", CPanel)
         presets:Dock(TOP)
@@ -37,17 +27,17 @@ function TPC:CreateMenu(CPanel)
                 RunConsoleCommand(k, v)
             end
 
+            timer.Simple(0.05, function() -- Paint the tool panel in a later frame
+               TPC:SetNewToolColors()
+            end)
+
             for type,tpnl in pairs(previewColors) do
                 for line,lpnl in pairs(tpnl) do
                     timer.Simple(0.1, function() -- Paint the previews in a later frame
-                        lpnl:SetColor(TPC:GetNewToolColors(type)[line])
+                        lpnl:SetColor(TPC.colors[type][line])
                     end)
                 end
             end
-
-            timer.Simple(0.1, function() -- Paint the tool panel in a later frame
-                TPC:PaintMenus()
-            end)
         end
 
     local previewSize = 50
@@ -91,18 +81,20 @@ function TPC:CreateMenu(CPanel)
         section2:SetTextColor(color_black)
 
     local function SetColorButton(type, line, position)
+        -- Selection box
         local background = vgui.Create("DPanel", previewColorsPanel)
             background:SetPos(previewSize * position, sectionHeight)
             background:SetSize(previewSize, previewSize)
             background:SetBackgroundColor(Color(0, 0, 0, 255))
             background:Hide()
 
-            previewColors[type][line] = vgui.Create("DColorButton", previewColorsPanel)
+        -- Applied color
+        previewColors[type][line] = vgui.Create("DColorButton", previewColorsPanel)
             previewColors[type][line].background = background
             previewColors[type][line]:SetPos(previewSize * position + 2, sectionHeight + 2)
             previewColors[type][line]:SetSize(previewSize - 4, previewSize - 4)
             previewColors[type][line]:Paint(previewSize, previewSize)
-            previewColors[type][line]:SetColor(self:GetNewToolColors(type)[line])
+            previewColors[type][line]:SetColor(self.colors[type][line])
             previewColors[type][line].DoClick = function(self)
                 SelectColorMixer(previewColors[type][line], colorControls[type][line])
             end
@@ -115,15 +107,16 @@ function TPC:CreateMenu(CPanel)
     SetColorButton("Others", "even", 2)
     SetColorButton("Others", "odd", 3)
 
+    local colorMixerHeight = 165
     local colorControlsPanel = vgui.Create("DPanel", CPanel)
         colorControlsPanel:Dock(TOP)
-        colorControlsPanel:SetSize(previewSize * 4, 300)
+        colorControlsPanel:SetSize(previewSize * 4, colorMixerHeight)
         colorControlsPanel:DockMargin(10, 10, 10, 0)
         colorControlsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
     local function SetColorMixer(type, line)
         colorControls[type][line] = vgui.Create("DColorMixer", colorControlsPanel)
-            colorControls[type][line]:SetSize(colorControlsPanel:GetWide(), 200)
+            colorControls[type][line]:SetSize(colorControlsPanel:GetWide(), colorMixerHeight)
             colorControls[type][line]:SetPalette(true)
             colorControls[type][line]:SetAlphaBar(true)
             colorControls[type][line]:SetWangs(true)
@@ -131,11 +124,11 @@ function TPC:CreateMenu(CPanel)
             colorControls[type][line]:SetConVarG("tpc_" .. type .. "_" .. line .. "_g")
             colorControls[type][line]:SetConVarB("tpc_" .. type .. "_" .. line .. "_b")
             colorControls[type][line]:SetConVarA("tpc_" .. type .. "_" .. line .. "_a")
-            colorControls[type][line]:SetColor(self:GetNewToolColors(type)[line])
+            colorControls[type][line]:SetColor(self.colors[type][line])
             colorControls[type][line]:Hide()
             colorControls[type][line].ValueChanged = function()
-                previewColors[type][line]:SetColor(self:GetNewToolColors(type)[line])
-                self:PaintMenus()
+                previewColors[type][line]:SetColor(self.colors[type][line])
+                TPC:SetNewToolColors()
             end
     end
 
@@ -147,7 +140,51 @@ function TPC:CreateMenu(CPanel)
 
     colorControls.GMod.even:Show()
 
-    if CPanel.Help then -- Disabled if testing
+    local toolEntryWidth = 161
+    local toolEntryHeight = 17
+    local fakeToolsListPanel = vgui.Create("DPanel", CPanel)
+        fakeToolsListPanel:Dock(TOP)
+        fakeToolsListPanel:SetTall(#self.fakeToolsList * toolEntryHeight)
+        fakeToolsListPanel:DockMargin(10, 10, 10, 0)
+        fakeToolsListPanel:SetBackgroundColor(Color(0, 0, 0, 0))
+
+    if not CPanel.Help then -- If testing
+        local realWhiteBackground = vgui.Create("DColorButton", fakeToolsListPanel)
+            realWhiteBackground:SetSize(toolEntryWidth, fakeToolsListPanel:GetTall())
+            realWhiteBackground:SetColor(Color(255, 255, 255, 255))
+    end
+
+    local function SimulateToolList(position, type, line, text, parent)
+        local posY = toolEntryHeight * position + 3
+
+        local toolEntry = vgui.Create("DPanel", parent)
+            toolEntry:SetPos(0, posY)
+            toolEntry:SetSize(toolEntryWidth, toolEntryHeight)
+            toolEntry:SetBackgroundColor(line == "even" and Color(0, 0, 0, 0) or Color(0, 0, 0, 27)) -- This line odd + white = Color(243, 243, 243, 255) = darker tool line
+            toolEntry.OnMousePressed = function(...)
+                previewColors[type][line]:DoClick(...)
+            end
+            TPC:SetPaint(toolEntry, type, line)
+
+        local toolName = vgui.Create( "DLabel", parent)
+            toolName:SetSize(toolEntryWidth, toolEntryHeight)
+            toolName:SetPos(5, posY)
+            toolName:SetText(text)
+            toolName:SetTextColor(line == "even" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
+    end
+
+    local DCollapsible = vgui.Create("DCollapsibleCategory", fakeToolsListPanel)
+        DCollapsible:SetLabel("Click on the tools")
+        DCollapsible:SetWide(toolEntryWidth)
+        DCollapsible:SetExpanded(true)
+
+    for k,v in ipairs(self.fakeToolsList) do
+        local line = k % 2 == 0 and "even" or "odd"
+
+        SimulateToolList(k, v[1], line, v[2], fakeToolsListPanel)
+    end
+
+    if CPanel.Help then -- If testing
         CPanel:Help("")
     end
 end
@@ -161,9 +198,11 @@ hook.Add("PopulateToolMenu", "CreateCMenu", function()
 end)
 
 function TPC:Test()
+    TPC:SetNewToolColors()
+
     local test = vgui.Create("DFrame")
         test:SetPos(800, 400)
-        test:SetSize(250, 500)
+        test:SetSize(250, 700)
         test:SetDeleteOnClose(true)
         test:Center()
         test:SetDraggable(true)	
