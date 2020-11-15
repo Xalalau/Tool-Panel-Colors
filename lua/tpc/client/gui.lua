@@ -31,10 +31,10 @@ function TPC:CreateMenu(CPanel)
                TPC:SetNewToolColors()
             end)
 
-            for type,tpnl in pairs(previewColors) do
-                for line,lpnl in pairs(tpnl) do
+            for toolType,tpnl in pairs(previewColors) do
+                for lineType,lpnl in pairs(tpnl) do
                     timer.Simple(0.1, function() -- Paint the previews in a later frame
-                        lpnl:SetColor(TPC.colors[type][line])
+                        lpnl:SetColor(TPC.colors[toolType][lineType])
                     end)
                 end
             end
@@ -49,11 +49,11 @@ function TPC:CreateMenu(CPanel)
         previewColorsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
     local function SelectColorMixer(pressedButton, newMixer)
-        for type,tpnl in pairs(colorControls) do
-            for line,lpnl in pairs(tpnl) do
+        for toolType,tpnl in pairs(colorControls) do
+            for lineType,lpnl in pairs(tpnl) do
                 if lpnl:IsVisible() then
                     lpnl:Hide() -- Old mixer
-                    previewColors[type][line].background:Hide() -- Last pressed button background
+                    previewColors[toolType][lineType].background:Hide() -- Last pressed button background
                     break
                 end
             end
@@ -80,7 +80,7 @@ function TPC:CreateMenu(CPanel)
         section2:SetText("      Custom tools")
         section2:SetTextColor(color_black)
 
-    local function SetColorButton(type, line, position)
+    local function SetColorButton(toolType, lineType, position)
         -- Selection box
         local background = vgui.Create("DPanel", previewColorsPanel)
             background:SetPos(previewSize * position, sectionHeight)
@@ -89,17 +89,17 @@ function TPC:CreateMenu(CPanel)
             background:Hide()
 
         -- Applied color
-        previewColors[type][line] = vgui.Create("DColorButton", previewColorsPanel)
-            previewColors[type][line].background = background
-            previewColors[type][line]:SetPos(previewSize * position + 2, sectionHeight + 2)
-            previewColors[type][line]:SetSize(previewSize - 4, previewSize - 4)
-            previewColors[type][line]:Paint(previewSize, previewSize)
-            previewColors[type][line]:SetColor(self.colors[type][line])
-            previewColors[type][line].DoClick = function(self)
-                SelectColorMixer(previewColors[type][line], colorControls[type][line])
+        previewColors[toolType][lineType] = vgui.Create("DColorButton", previewColorsPanel)
+            previewColors[toolType][lineType].background = background
+            previewColors[toolType][lineType]:SetPos(previewSize * position + 2, sectionHeight + 2)
+            previewColors[toolType][lineType]:SetSize(previewSize - 4, previewSize - 4)
+            previewColors[toolType][lineType]:Paint(previewSize, previewSize)
+            previewColors[toolType][lineType]:SetColor(self.colors[toolType][lineType])
+            previewColors[toolType][lineType].DoClick = function(self)
+                SelectColorMixer(previewColors[toolType][lineType], colorControls[toolType][lineType])
             end
 
-        return previewColors[type][line]
+        return previewColors[toolType][lineType]
     end
 
     SetColorButton("GMod", "even", 0).background:Show()
@@ -114,27 +114,27 @@ function TPC:CreateMenu(CPanel)
         colorControlsPanel:DockMargin(10, 10, 10, 0)
         colorControlsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
-    local function SetColorMixer(type, line)
-        colorControls[type][line] = vgui.Create("DColorMixer", colorControlsPanel)
-            colorControls[type][line]:SetSize(colorControlsPanel:GetWide(), colorMixerHeight)
-            colorControls[type][line]:SetPalette(true)
-            colorControls[type][line]:SetAlphaBar(true)
-            colorControls[type][line]:SetWangs(true)
-            colorControls[type][line]:SetConVarR("tpc_" .. type .. "_" .. line .. "_r")
-            colorControls[type][line]:SetConVarG("tpc_" .. type .. "_" .. line .. "_g")
-            colorControls[type][line]:SetConVarB("tpc_" .. type .. "_" .. line .. "_b")
-            colorControls[type][line]:SetConVarA("tpc_" .. type .. "_" .. line .. "_a")
-            colorControls[type][line]:SetColor(self.colors[type][line])
-            colorControls[type][line]:Hide()
-            colorControls[type][line].ValueChanged = function()
-                previewColors[type][line]:SetColor(self.colors[type][line])
+    local function SetColorMixer(toolType, lineType)
+        colorControls[toolType][lineType] = vgui.Create("DColorMixer", colorControlsPanel)
+            colorControls[toolType][lineType]:SetSize(colorControlsPanel:GetWide(), colorMixerHeight)
+            colorControls[toolType][lineType]:SetPalette(true)
+            colorControls[toolType][lineType]:SetAlphaBar(true)
+            colorControls[toolType][lineType]:SetWangs(true)
+            colorControls[toolType][lineType]:SetConVarR("tpc_" .. toolType .. "_" .. lineType .. "_r")
+            colorControls[toolType][lineType]:SetConVarG("tpc_" .. toolType .. "_" .. lineType .. "_g")
+            colorControls[toolType][lineType]:SetConVarB("tpc_" .. toolType .. "_" .. lineType .. "_b")
+            colorControls[toolType][lineType]:SetConVarA("tpc_" .. toolType .. "_" .. lineType .. "_a")
+            colorControls[toolType][lineType]:SetColor(self.colors[toolType][lineType])
+            colorControls[toolType][lineType]:Hide()
+            colorControls[toolType][lineType].ValueChanged = function()
+                previewColors[toolType][lineType]:SetColor(self.colors[toolType][lineType])
                 TPC:SetNewToolColors()
             end
     end
 
-    for type,tpnl in pairs(colorControls) do
-        for line,lpnl in pairs(tpnl) do
-            SetColorMixer(type, line)
+    for toolType,tpnl in pairs(colorControls) do
+        for lineType,lpnl in pairs(tpnl) do
+            SetColorMixer(toolType, lineType)
         end
     end
 
@@ -154,23 +154,23 @@ function TPC:CreateMenu(CPanel)
             realWhiteBackground:SetColor(Color(255, 255, 255, 255))
     end
 
-    local function SimulateToolList(position, type, line, text, parent)
+    local function SimulateToolList(position, toolType, lineType, text, parent)
         local posY = toolEntryHeight * position + 3
 
         local toolEntry = vgui.Create("DPanel", parent)
             toolEntry:SetPos(0, posY)
             toolEntry:SetSize(toolEntryWidth, toolEntryHeight)
-            toolEntry:SetBackgroundColor(line == "even" and Color(0, 0, 0, 0) or Color(0, 0, 0, 27)) -- This line odd + white = Color(243, 243, 243, 255) = darker tool line
+            toolEntry:SetBackgroundColor(lineType == "even" and Color(0, 0, 0, 0) or Color(0, 0, 0, 27)) -- This line odd + white = Color(243, 243, 243, 255) = darker tool line
             toolEntry.OnMousePressed = function(...)
-                previewColors[type][line]:DoClick(...)
+                previewColors[toolType][lineType]:DoClick(...)
             end
-            TPC:SetPaint(toolEntry, type, line)
+            TPC:SetPaint(toolEntry, toolType, lineType)
 
         local toolName = vgui.Create( "DLabel", parent)
             toolName:SetSize(toolEntryWidth, toolEntryHeight)
             toolName:SetPos(5, posY)
             toolName:SetText(text)
-            toolName:SetTextColor(line == "even" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
+            toolName:SetTextColor(lineType == "even" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
     end
 
     local DCollapsible = vgui.Create("DCollapsibleCategory", fakeToolsListPanel)
@@ -179,9 +179,9 @@ function TPC:CreateMenu(CPanel)
         DCollapsible:SetExpanded(true)
 
     for k,v in ipairs(self.fakeToolsList) do
-        local line = k % 2 == 0 and "even" or "odd"
+        local lineType = k % 2 == 0 and "even" or "odd"
 
-        SimulateToolList(k, v[1], line, v[2], fakeToolsListPanel)
+        SimulateToolList(k, v[1], lineType, v[2], fakeToolsListPanel)
     end
 
     if CPanel.Help then -- If testing
