@@ -51,19 +51,19 @@ end
 
 function TPC:PaintToolPanel()
     local toolPanelList = g_SpawnMenu.ToolMenu.ToolPanels[1].List
-    local odd
+    local odd = true
 
     for _, col in ipairs(toolPanelList.pnlCanvas:GetChildren()) do
         for __, pnl in ipairs(col:GetChildren()) do
             if pnl.ClassName ~= "DCategoryHeader" then
-                odd = not odd and true or false
-
                 local toolType = self.defaultTools[pnl.Name] and "GMod" or "Others"
                 local lineType = odd and "odd" or "even"
 
                 self:SetPaint(pnl, toolType, lineType)
+
+                odd = not odd and true or false
             else
-                odd = false
+                odd = true
             end
         end
 

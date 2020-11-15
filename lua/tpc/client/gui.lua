@@ -97,10 +97,10 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         return previewColors[toolType][lineType]
     end
 
-    SetColorButton("GMod", "even", 0).background:Show()
-    SetColorButton("GMod", "odd", 1)
-    SetColorButton("Others", "even", 2)
-    SetColorButton("Others", "odd", 3)
+    SetColorButton("GMod", "odd", 0).background:Show()
+    SetColorButton("GMod", "even", 1)
+    SetColorButton("Others", "odd", 2)
+    SetColorButton("Others", "even", 3)
 
     local colorMixerHeight = 165
     local colorControlsPanel = vgui.Create("DPanel", CPanel)
@@ -155,7 +155,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         local toolEntry = vgui.Create("DPanel", parent)
             toolEntry:SetPos(0, posY)
             toolEntry:SetSize(toolEntryWidth, toolEntryHeight)
-            toolEntry:SetBackgroundColor(lineType == "even" and Color(0, 0, 0, 0) or Color(0, 0, 0, 27)) -- This line odd + white = Color(243, 243, 243, 255) = darker tool line
+            toolEntry:SetBackgroundColor(lineType == "even" and Color(0, 0, 0, 0) or Color(0, 0, 0, 27))
             toolEntry.OnMousePressed = function(...)
                 previewColors[toolType][lineType]:DoClick(...)
             end
