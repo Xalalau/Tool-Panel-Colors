@@ -36,14 +36,23 @@ end
 
 local function AddColorSelector(CPanel, colorControls, previewColors)
     local previewSize = 50
+    local colorControlsPanel
+
+    -- ---------------------
+    -- Menu selectors
+    -- ---------------------
     local sectionHeight = 25
     local previewColorsPanel = vgui.Create("DPanel", CPanel)
         previewColorsPanel:Dock(TOP)
-        previewColorsPanel:SetSize(previewSize * 4, previewSize + sectionHeight)
+        previewColorsPanel:SetTall(previewSize + sectionHeight)
         previewColorsPanel:DockMargin(10, 10, 10, 0)
         previewColorsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
     local function SelectColorMixer(pressedButton, newMixer)
+        if not colorControlsPanel:IsVisible() then
+            colorControlsPanel:Show()
+        end
+
         for toolType,tpnl in pairs(colorControls) do
             for lineType,lpnl in pairs(tpnl) do
                 if lpnl:IsVisible() then
@@ -58,22 +67,25 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         pressedButton.background:Show()
     end
 
+    local back1 = vgui.Create( "DPanel", previewColorsPanel)
+        back1:SetSize(previewSize * 2, sectionHeight + previewSize)
+        back1:SetBackgroundColor(Color(0, 0, 0, 80))
+
     local section1 = vgui.Create( "DLabel", previewColorsPanel)
         section1:SetSize(previewSize * 2, sectionHeight)
-        section1:SetText("       Default tools")
+        section1:SetText("  GMod default tools")
         section1:SetTextColor(color_black)
 
-    local divider = vgui.Create( "DLabel", previewColorsPanel)
-        divider:SetSize(previewSize * 2, sectionHeight)
-        divider:SetPos(section1:GetWide() - 4, 0)
-        divider:SetText("||")
-        divider:SetTextColor(color_black)
+    local back2 = vgui.Create( "DPanel", previewColorsPanel)
+        back2:SetSize(previewSize * 2, sectionHeight + previewSize)
+        back2:SetPos(previewSize * 2, 0)
+        back2:SetBackgroundColor(Color(0, 0, 0, 170))
 
     local section2 = vgui.Create( "DLabel", previewColorsPanel)
         section2:SetSize(previewSize * 2, sectionHeight)
         section2:SetPos(section1:GetWide(), 0)
         section2:SetText("      Custom tools")
-        section2:SetTextColor(color_black)
+        section2:SetTextColor(color_white)
 
     local function SetColorButton(toolType, lineType, position)
         -- Selection box
@@ -111,19 +123,21 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     SetColorButton("Others", "odd", 2)
     SetColorButton("Others", "even", 3)
 
-    previewColors.GMod.odd.background:Show()
-
-    local colorMixerHeight = 165
-    local colorControlsPanel = vgui.Create("DPanel", CPanel)
+    -- ---------------------
+    -- Color mixer
+    -- ---------------------
+    local colorMixerHeight = 92
+    colorControlsPanel = vgui.Create("DPanel", CPanel)
         colorControlsPanel:Dock(TOP)
         colorControlsPanel:SetSize(previewSize * 4, colorMixerHeight)
         colorControlsPanel:DockMargin(10, 10, 10, 0)
         colorControlsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
+        colorControlsPanel:Hide()
 
     local function SetColorMixer(toolType, lineType)
         colorControls[toolType][lineType] = vgui.Create("DColorMixer", colorControlsPanel)
             colorControls[toolType][lineType]:SetSize(colorControlsPanel:GetWide(), colorMixerHeight)
-            colorControls[toolType][lineType]:SetPalette(true)
+            colorControls[toolType][lineType]:SetPalette(false)
             colorControls[toolType][lineType]:SetAlphaBar(true)
             colorControls[toolType][lineType]:SetWangs(true)
             colorControls[toolType][lineType]:SetConVarR("tpc_" .. toolType .. "_" .. lineType .. "_r")
@@ -144,24 +158,21 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         end
     end
 
-    colorControls.GMod.odd:Show()
+    -- ---------------------
+    -- Fake tool list
+    -- ---------------------
 
     local toolEntryWidth = 161
     local toolEntryHeight = 17
+    local extraDCollapsibleHeight = 3
     local fakeToolsListPanel = vgui.Create("DPanel", CPanel)
         fakeToolsListPanel:Dock(TOP)
-        fakeToolsListPanel:SetTall(#TPC.fakeToolsList * toolEntryHeight)
-        fakeToolsListPanel:DockMargin(10, 10, 10, 0)
+        fakeToolsListPanel:SetTall(#TPC.fakeToolsList * (toolEntryHeight + 1) + extraDCollapsibleHeight * 2)
+        fakeToolsListPanel:DockMargin(30, 10, 10, 0)
         fakeToolsListPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
-    if not CPanel.Help then -- If testing
-        local realWhiteBackground = vgui.Create("DColorButton", fakeToolsListPanel)
-            realWhiteBackground:SetSize(toolEntryWidth, fakeToolsListPanel:GetTall())
-            realWhiteBackground:SetColor(Color(255, 255, 255, 255))
-    end
-
     local function SimulateToolList(position, toolType, lineType, text, parent)
-        local posY = toolEntryHeight * position + 3
+        local posY = toolEntryHeight * position + extraDCollapsibleHeight
 
         local toolEntry = vgui.Create("DPanel", parent)
             toolEntry:SetPos(0, posY)
@@ -177,6 +188,12 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             toolName:SetPos(5, posY)
             toolName:SetText(text)
             toolName:SetTextColor(lineType == "even" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
+
+        local tool = vgui.Create( "DLabel", parent)
+            tool:SetSize(toolEntryWidth/5, toolEntryHeight)
+            tool:SetPos((toolEntryWidth/5) * 4, posY)
+            tool:SetText(lineType == "even" and "bright" or "dark")
+            tool:SetTextColor(lineType == "even" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
     end
 
     local DCollapsible = vgui.Create("DCollapsibleCategory", fakeToolsListPanel)
@@ -226,6 +243,10 @@ function TPC:Test()
         test:SetDraggable(true)	
         test:MakePopup()
 
-    self:CreateMenu(test)
+    local realWhiteBackground = vgui.Create("DColorButton", test)
+        realWhiteBackground:Dock(FILL)
+        realWhiteBackground:SetColor(color_white)
+
+    self:CreateMenu(realWhiteBackground)
 end
 --TPC:Test() -- Uncomment and save after the map loads
