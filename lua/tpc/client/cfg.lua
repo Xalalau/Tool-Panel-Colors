@@ -112,7 +112,7 @@ TPC.presets = {
         tpc_others_dark_r = "255",
         tpc_others_dark_g = "255",
         tpc_others_dark_b = "100",
-        tpc_others_dark_a = "50"
+        tpc_others_dark_a = "63"
     },
     ["Menta"] = {
         tpc_gmod_bright_r = "255",
@@ -130,7 +130,7 @@ TPC.presets = {
         tpc_others_dark_r = "99",
         tpc_others_dark_g = "255",
         tpc_others_dark_b = "130",
-        tpc_others_dark_a = "50"
+        tpc_others_dark_a = "70"
     },
     ["BSDO"] = {
         tpc_gmod_bright_r = "255",
@@ -166,6 +166,6 @@ TPC.presets = {
         tpc_others_dark_r = "255",
         tpc_others_dark_g = "0",
         tpc_others_dark_b = "0",
-        tpc_others_dark_a = "52"
+        tpc_others_dark_a = "44"
     }
 }
