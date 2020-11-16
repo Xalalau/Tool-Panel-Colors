@@ -7,7 +7,7 @@ local function AddPresets(CPanel, previewColors)
     local presets = vgui.Create("ControlPresets", CPanel)
         presets:Dock(TOP)
         presets:DockMargin(10, 10, 10, 0)
-        presets:SetPreset("tpc")
+        presets:SetPreset(TPC.FOLDER.DATA)
         for k, v in pairs(TPC.presets) do
             presets:AddOption(k, v)
 
