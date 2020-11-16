@@ -4,22 +4,22 @@
 --]]
 
 CreateClientConVar("tpc_first_run", "0")
-CreateClientConVar("tpc_gmod_even_r", "")
-CreateClientConVar("tpc_gmod_even_g", "")
-CreateClientConVar("tpc_gmod_even_b", "")
-CreateClientConVar("tpc_gmod_even_a", "")
-CreateClientConVar("tpc_gmod_odd_r", "")
-CreateClientConVar("tpc_gmod_odd_g", "")
-CreateClientConVar("tpc_gmod_odd_b", "")
-CreateClientConVar("tpc_gmod_odd_a", "")
-CreateClientConVar("tpc_others_even_r", "")
-CreateClientConVar("tpc_others_even_g", "")
-CreateClientConVar("tpc_others_even_b", "")
-CreateClientConVar("tpc_others_even_a", "")
-CreateClientConVar("tpc_others_odd_r", "")
-CreateClientConVar("tpc_others_odd_g", "")
-CreateClientConVar("tpc_others_odd_b", "")
-CreateClientConVar("tpc_others_odd_a", "")
+CreateClientConVar("tpc_gmod_bright_r", "")
+CreateClientConVar("tpc_gmod_bright_g", "")
+CreateClientConVar("tpc_gmod_bright_b", "")
+CreateClientConVar("tpc_gmod_bright_a", "")
+CreateClientConVar("tpc_gmod_dark_r", "")
+CreateClientConVar("tpc_gmod_dark_g", "")
+CreateClientConVar("tpc_gmod_dark_b", "")
+CreateClientConVar("tpc_gmod_dark_a", "")
+CreateClientConVar("tpc_others_bright_r", "")
+CreateClientConVar("tpc_others_bright_g", "")
+CreateClientConVar("tpc_others_bright_b", "")
+CreateClientConVar("tpc_others_bright_a", "")
+CreateClientConVar("tpc_others_dark_r", "")
+CreateClientConVar("tpc_others_dark_g", "")
+CreateClientConVar("tpc_others_dark_b", "")
+CreateClientConVar("tpc_others_dark_a", "")
 
 function TPC:TableToColor(colorTable)
     return Color(colorTable.r, colorTable.g, colorTable.b, colorTable.a)
@@ -77,19 +77,19 @@ end
 
 function TPC:PaintToolPanel()
     local toolPanelList = g_SpawnMenu.ToolMenu.ToolPanels[1].List
-    local odd = true
+    local dark = true
 
     for _, col in ipairs(toolPanelList.pnlCanvas:GetChildren()) do
         for __, pnl in ipairs(col:GetChildren()) do
             if pnl.ClassName ~= "DCategoryHeader" then
                 local toolType = self.defaultTools[pnl.Name] and "GMod" or "Others"
-                local lineType = odd and "odd" or "even"
+                local lineType = dark and "dark" or "bright"
 
                 self:SetPaint(pnl, toolType, lineType)
 
-                odd = not odd and true or false
+                dark = not dark and true or false
             else
-                odd = true
+                dark = true
             end
         end
 

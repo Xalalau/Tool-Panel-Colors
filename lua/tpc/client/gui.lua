@@ -117,21 +117,21 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             end
             local pnlAux = previewColors[toolType][lineType]
             pnlAux._Paint = pnlAux.Paint
-            pnlAux.odd = lineType == "odd" and true or false
+            pnlAux.dark = lineType == "dark" and true or false
             function pnlAux:Paint(w, h)
                 self:_Paint(w, h)
 
-                if pnlAux.odd then
+                if pnlAux.dark then
                     surface.SetDrawColor(Color(0, 0, 0, 27))
                     surface.DrawRect(0, 0, w, h)
                 end
             end
     end
 
-    SetColorButton("GMod", "odd", 0)
-    SetColorButton("GMod", "even", 1)
-    SetColorButton("Others", "odd", 2)
-    SetColorButton("Others", "even", 3)
+    SetColorButton("GMod", "dark", 0)
+    SetColorButton("GMod", "bright", 1)
+    SetColorButton("Others", "dark", 2)
+    SetColorButton("Others", "bright", 3)
 
     -- ---------------------
     -- Color mixer
@@ -188,7 +188,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         local toolEntry = vgui.Create("DPanel", parent)
             toolEntry:SetPos(0, posY)
             toolEntry:SetSize(toolEntryWidth, toolEntryHeight)
-            toolEntry:SetBackgroundColor(lineType == "even" and Color(0, 0, 0, 0) or Color(0, 0, 0, 27))
+            toolEntry:SetBackgroundColor(lineType == "bright" and Color(0, 0, 0, 0) or Color(0, 0, 0, 27))
             toolEntry.OnMousePressed = function(...)
                 previewColors[toolType][lineType]:DoClick(...)
             end
@@ -198,13 +198,13 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             toolName:SetSize(toolEntryWidth, toolEntryHeight)
             toolName:SetPos(5, posY)
             toolName:SetText(text)
-            toolName:SetTextColor(lineType == "even" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
+            toolName:SetTextColor(lineType == "bright" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
 
         local tool = vgui.Create( "DLabel", parent)
             tool:SetSize(toolEntryWidth/5, toolEntryHeight)
             tool:SetPos((toolEntryWidth/5) * 4, posY)
-            tool:SetText(lineType == "even" and "Bright" or "Dark")
-            tool:SetTextColor(lineType == "even" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
+            tool:SetText(lineType == "bright" and "Bright" or "Dark")
+            tool:SetTextColor(lineType == "bright" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
     end
 
     local DCollapsible = vgui.Create("DCollapsibleCategory", fakeToolsListPanel)
@@ -213,7 +213,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         DCollapsible:SetExpanded(true)
 
     for k,v in ipairs(TPC.fakeToolsList) do
-        local lineType = k % 2 == 0 and "even" or "odd"
+        local lineType = k % 2 == 0 and "bright" or "dark"
 
         SimulateToolList(k, v[1], lineType, v[2], fakeToolsListPanel)
     end

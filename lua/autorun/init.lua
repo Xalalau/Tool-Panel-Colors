@@ -32,12 +32,12 @@ end
 
 TPC.colors = {
     GMod = { 
-        even = true,
-        odd = true
+        bright = true,
+        dark = true
     },
     Others = {
-        even = true,
-        odd = true
+        bright = true,
+        dark = true
     }
 }
 
