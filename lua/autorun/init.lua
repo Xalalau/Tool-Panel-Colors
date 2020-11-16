@@ -47,5 +47,5 @@ end
 includeModules(TPC.FOLDER.CL_MODULES, true)
 
 if CLIENT then
-    TPC:SetNewToolColors()
+    TPC:InitToolColors()
 end

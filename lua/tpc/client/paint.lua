@@ -20,20 +20,31 @@ CreateClientConVar("tpc_others_odd_g", "116")
 CreateClientConVar("tpc_others_odd_b", "255")
 CreateClientConVar("tpc_others_odd_a", "85")
 
--- Store the new color completely in an internal variable for easy access
-function TPC:SetNewToolColors()
+function TPC:TableToColor(colorTable)
+    return Color(colorTable.r, colorTable.g, colorTable.b, colorTable.a)
+end
+
+function TPC:SetNewToolColors(toolType, lineType, colorTable)
+    for k,v in pairs(colorTable) do
+        RunConsoleCommand("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_" .. k, v)
+    end
+
+    self.colors[toolType][lineType] = self:TableToColor(colorTable)
+end
+
+function TPC:InitToolColors()
     local function GetCurrentColors(toolType, lineType)
-        return Color(
-                GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_r"):GetInt(),
-                GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_g"):GetInt(),
-                GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_b"):GetInt(),
-                GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_a"):GetInt()
-        )
+        return {
+            r = GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_r"):GetInt(),
+            g = GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_g"):GetInt(),
+            b = GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_b"):GetInt(),
+            a = GetConVar("tpc_" .. string.lower(toolType) .. "_" .. lineType .. "_a"):GetInt()
+        }
     end
 
     for toolType,lineTypeTable in pairs(self.colors) do
         for lineType,_ in pairs(lineTypeTable) do
-            self.colors[toolType][lineType] = GetCurrentColors(toolType, lineType)
+            self.colors[toolType][lineType] = self:TableToColor(GetCurrentColors(toolType, lineType))
         end
     end
 end

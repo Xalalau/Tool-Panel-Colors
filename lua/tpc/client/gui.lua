@@ -20,17 +20,15 @@ local function AddPresets(CPanel, previewColors)
                 RunConsoleCommand(k, v)
             end
 
-            timer.Simple(0.05, function() -- Paint the tool panel in a later frame
-               TPC:SetNewToolColors()
-            end)
+            timer.Simple(0.05, function() -- Wait the RunConsoleCommand before init the colors
+               TPC:InitToolColors()
 
-            for toolType,tpnl in pairs(previewColors) do
-                for lineType,lpnl in pairs(tpnl) do
-                    timer.Simple(0.1, function() -- Paint the previews in a later frame
+                for toolType,tpnl in pairs(previewColors) do
+                    for lineType,lpnl in pairs(tpnl) do
                         lpnl:SetColor(TPC.colors[toolType][lineType])
-                    end)
+                    end
                 end
-            end
+            end)
         end
 end
 
@@ -146,9 +144,10 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             colorControls[toolType][lineType]:SetConVarA("tpc_" .. toolType .. "_" .. lineType .. "_a")
             colorControls[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             colorControls[toolType][lineType]:Hide()
-            colorControls[toolType][lineType].ValueChanged = function()
+            colorControls[toolType][lineType].ValueChanged = function(self, colorTable)
+                -- Note: SetConVar"RGBA" is applying past values instead of current ones, so I'm doing a convar refresh here
+                TPC:SetNewToolColors(toolType, lineType, colorTable)
                 previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
-                TPC:SetNewToolColors()
             end
     end
 
@@ -233,7 +232,7 @@ hook.Add("PopulateToolMenu", "CreateCMenu", function()
 end)
 
 function TPC:Test()
-    TPC:SetNewToolColors()
+    TPC:InitToolColors()
 
     local test = vgui.Create("DFrame")
         test:SetPos(800, 400)
