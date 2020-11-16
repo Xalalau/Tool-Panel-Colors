@@ -39,10 +39,10 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     -- ---------------------
     -- Menu selectors
     -- ---------------------
-    local sectionHeight = 25
+    local sectionHeight = 20
     local previewColorsPanel = vgui.Create("DPanel", CPanel)
         previewColorsPanel:Dock(TOP)
-        previewColorsPanel:SetTall(previewSize + sectionHeight)
+        previewColorsPanel:SetTall(previewSize + sectionHeight * 2)
         previewColorsPanel:DockMargin(10, 10, 10, 0)
         previewColorsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
@@ -66,7 +66,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     end
 
     local back1 = vgui.Create( "DPanel", previewColorsPanel)
-        back1:SetSize(previewSize * 2, sectionHeight + previewSize)
+        back1:SetSize(previewSize * 2, sectionHeight * 2 + previewSize)
         back1:SetBackgroundColor(Color(0, 0, 0, 80))
 
     local section1 = vgui.Create( "DLabel", previewColorsPanel)
@@ -74,8 +74,14 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         section1:SetText("  GMod default tools")
         section1:SetTextColor(color_black)
 
+    local subSection1 = vgui.Create( "DLabel", previewColorsPanel)
+        subSection1:SetSize(previewSize * 2, sectionHeight)
+        subSection1:SetPos(0, sectionHeight)
+        subSection1:SetText("     Dark        Bright")
+        subSection1:SetTextColor(color_black)
+
     local back2 = vgui.Create( "DPanel", previewColorsPanel)
-        back2:SetSize(previewSize * 2, sectionHeight + previewSize)
+        back2:SetSize(previewSize * 2, sectionHeight * 2 + previewSize)
         back2:SetPos(previewSize * 2, 0)
         back2:SetBackgroundColor(Color(0, 0, 0, 170))
 
@@ -85,10 +91,16 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         section2:SetText("      Custom tools")
         section2:SetTextColor(color_white)
 
+    local subSection2 = vgui.Create( "DLabel", previewColorsPanel)
+        subSection2:SetSize(previewSize * 2, sectionHeight)
+        subSection2:SetPos(section1:GetWide(), sectionHeight)
+        subSection2:SetText("     Dark        Bright")
+        subSection2:SetTextColor(color_white)
+
     local function SetColorButton(toolType, lineType, position)
         -- Selection box
         local background = vgui.Create("DPanel", previewColorsPanel)
-            background:SetPos(previewSize * position, sectionHeight)
+            background:SetPos(previewSize * position, sectionHeight * 2)
             background:SetSize(previewSize, previewSize)
             background:SetBackgroundColor(Color(0, 0, 0, 255))
             background:Hide()
@@ -96,7 +108,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         -- Applied color
         previewColors[toolType][lineType] = vgui.Create("DColorButton", previewColorsPanel)
             previewColors[toolType][lineType].background = background
-            previewColors[toolType][lineType]:SetPos(previewSize * position + 2, sectionHeight + 2)
+            previewColors[toolType][lineType]:SetPos(previewSize * position + 2, sectionHeight * 2 + 2)
             previewColors[toolType][lineType]:SetSize(previewSize - 4, previewSize - 4)
             previewColors[toolType][lineType]:Paint(previewSize, previewSize)
             previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
@@ -191,7 +203,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         local tool = vgui.Create( "DLabel", parent)
             tool:SetSize(toolEntryWidth/5, toolEntryHeight)
             tool:SetPos((toolEntryWidth/5) * 4, posY)
-            tool:SetText(lineType == "even" and "bright" or "dark")
+            tool:SetText(lineType == "even" and "Bright" or "Dark")
             tool:SetTextColor(lineType == "even" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
     end
 
@@ -248,4 +260,4 @@ function TPC:Test()
 
     self:CreateMenu(realWhiteBackground)
 end
---TPC:Test() -- Uncomment and save after the map loads
+TPC:Test() -- Uncomment and save after the map loads
