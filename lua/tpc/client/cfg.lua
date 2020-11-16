@@ -3,6 +3,21 @@
     https://xalalau.com/
 --]]
 
+TPC.version = "Pre 1.0"
+
+TPC.defaultPreset = "Menta"
+
+TPC.colors = {
+    GMod = { 
+        bright = true,
+        dark = true
+    },
+    Custom = {
+        bright = true,
+        dark = true
+    }
+}
+
 TPC.defaultTools = {
     ["axis"] = true,
     ["ballsocket"] = true,
@@ -56,8 +71,6 @@ TPC.fakeToolsList = {
     { "Custom", "Custom Tool 6" },
     { "Custom", "Custom Tool 7" },
 }
-
-TPC.defaultPreset = "Menta"
 
 TPC.presets = {
     ["[Default]"] = {

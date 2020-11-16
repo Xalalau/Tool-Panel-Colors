@@ -5,8 +5,6 @@
 
 TPC = {}
 
-TPC.VERSION = "Pre 1.0"
-
 TPC.FOLDER = {}
 TPC.FOLDER.LUA = "tpc/"
 TPC.FOLDER.DATA = "tpc"
@@ -30,17 +28,6 @@ local function includeModules(dir, isClientModule)
         end
     end 
 end
-
-TPC.colors = {
-    GMod = { 
-        bright = true,
-        dark = true
-    },
-    Custom = {
-        bright = true,
-        dark = true
-    }
-}
 
 if SERVER then
     includeModules(TPC.FOLDER.SV_MODULES)
