@@ -3,7 +3,6 @@
     https://xalalau.com/
 --]]
 
-CreateClientConVar("tpc_first_run", "0")
 CreateClientConVar("tpc_gmod_bright_r", "")
 CreateClientConVar("tpc_gmod_bright_g", "")
 CreateClientConVar("tpc_gmod_bright_b", "")
