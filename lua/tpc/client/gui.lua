@@ -3,7 +3,7 @@
     https://xalalau.com/
 --]]
 
-function TCP:InitGui()
+function TPC:InitGui()
     local toolPanelList = g_SpawnMenu.ToolMenu.ToolPanels[1].List
     local dark = true
 
@@ -20,9 +20,17 @@ function TCP:InitGui()
                 dark = not dark and true or false
             end
         end
+    end
+end
 
-        col:InvalidateLayout() -- Checar se isso é útil
-        toolPanelList.pnlCanvas:InvalidateLayout()
+function TPC:SetPaint(pnl, toolType, lineType)
+    pnl._Paint = pnl._Paint or pnl.Paint
+
+    function pnl:Paint(w, h)
+        surface.SetDrawColor(TPC.colors[toolType][lineType])
+        surface.DrawRect(0, 0, w, h)
+
+        return self:_Paint(w, h)
     end
 end
 
@@ -44,7 +52,7 @@ local function AddPresets(CPanel, previewColors)
             end
 
             timer.Simple(0.05, function() -- Wait the RunConsoleCommand before init the colors
-               TPC:InitToolColors()
+               TPC:InitColors()
 
                 for toolType,tpnl in pairs(previewColors) do
                     for lineType,lpnl in pairs(tpnl) do
@@ -181,7 +189,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             colorControls[toolType][lineType]:Hide()
             colorControls[toolType][lineType].ValueChanged = function(self, colorTable)
                 -- Note: SetConVar"RGBA" is applying past values instead of current ones, so I'm doing a convar refresh here
-                TPC:SetNewToolColors(toolType, lineType, colorTable)
+                TPC:SetColors(toolType, lineType, colorTable)
                 previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             end
     end
@@ -272,7 +280,7 @@ hook.Add("PostReloadToolsMenu", "PaintMenus", function()
 end)
 
 function TPC:Test()
-    TPC:InitToolColors()
+    TPC:InitColors()
 
     local test = vgui.Create("DFrame")
         test:SetPos(800, 400)

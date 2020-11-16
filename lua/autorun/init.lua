@@ -35,14 +35,14 @@ end
 includeModules(TPC.FOLDER.CL_MODULES, true)
 
 if CLIENT then
-    if TPC:InitFirstRun() then
+    if TPC:InitColorsFirstRun() then
         local name = "tpc" .. tostring(LocalPlayer())
 
         hook.Add("OnSpawnMenuOpen", name, function()
-            TPC:InitToolColors()
+            TPC:InitColors()
             hook.Remove(name)
         end)
     else
-        TPC:InitToolColors()
+        TPC:InitColors()
     end
 end
