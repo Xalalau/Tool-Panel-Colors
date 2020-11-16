@@ -12,14 +12,14 @@ CreateClientConVar("tpc_gmod_dark_r", "")
 CreateClientConVar("tpc_gmod_dark_g", "")
 CreateClientConVar("tpc_gmod_dark_b", "")
 CreateClientConVar("tpc_gmod_dark_a", "")
-CreateClientConVar("tpc_others_bright_r", "")
-CreateClientConVar("tpc_others_bright_g", "")
-CreateClientConVar("tpc_others_bright_b", "")
-CreateClientConVar("tpc_others_bright_a", "")
-CreateClientConVar("tpc_others_dark_r", "")
-CreateClientConVar("tpc_others_dark_g", "")
-CreateClientConVar("tpc_others_dark_b", "")
-CreateClientConVar("tpc_others_dark_a", "")
+CreateClientConVar("tpc_custom_bright_r", "")
+CreateClientConVar("tpc_custom_bright_g", "")
+CreateClientConVar("tpc_custom_bright_b", "")
+CreateClientConVar("tpc_custom_bright_a", "")
+CreateClientConVar("tpc_custom_dark_r", "")
+CreateClientConVar("tpc_custom_dark_g", "")
+CreateClientConVar("tpc_custom_dark_b", "")
+CreateClientConVar("tpc_custom_dark_a", "")
 
 function TPC:TableToColor(colorTable)
     return Color(colorTable.r, colorTable.g, colorTable.b, colorTable.a)
@@ -82,7 +82,7 @@ function TPC:PaintToolPanel()
     for _, col in ipairs(toolPanelList.pnlCanvas:GetChildren()) do
         for __, pnl in ipairs(col:GetChildren()) do
             if pnl.ClassName ~= "DCategoryHeader" then
-                local toolType = self.defaultTools[pnl.Name] and "GMod" or "Others"
+                local toolType = self.defaultTools[pnl.Name] and "GMod" or "Custom"
                 local lineType = dark and "dark" or "bright"
 
                 self:SetPaint(pnl, toolType, lineType)

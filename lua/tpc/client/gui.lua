@@ -130,8 +130,8 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
 
     SetColorButton("GMod", "dark", 0)
     SetColorButton("GMod", "bright", 1)
-    SetColorButton("Others", "dark", 2)
-    SetColorButton("Others", "bright", 3)
+    SetColorButton("Custom", "dark", 2)
+    SetColorButton("Custom", "bright", 3)
 
     -- ---------------------
     -- Color mixer

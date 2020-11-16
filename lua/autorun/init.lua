@@ -35,7 +35,7 @@ TPC.colors = {
         bright = true,
         dark = true
     },
-    Others = {
+    Custom = {
         bright = true,
         dark = true
     }
