@@ -35,6 +35,8 @@ end
 includeModules(TPC.FOLDER.CL_MODULES, true)
 
 if CLIENT then
+    CreateClientConVar("tpc_first_run", "0")
+
     if TPC:InitColorsFirstRun() then
         local name = "tpc" .. tostring(LocalPlayer())
 
