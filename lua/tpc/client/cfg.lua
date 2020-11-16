@@ -147,5 +147,23 @@ TPC.options = {
         tpc_others_odd_g = "208",
         tpc_others_odd_b = "255",
         tpc_others_odd_a = "85"
+    },
+    ["Wine"] = {
+        tpc_gmod_even_r = "255",
+        tpc_gmod_even_g = "255",
+        tpc_gmod_even_b = "255",
+        tpc_gmod_even_a = "255",
+        tpc_gmod_odd_r = "255",
+        tpc_gmod_odd_g = "255",
+        tpc_gmod_odd_b = "255",
+        tpc_gmod_odd_a = "255",
+        tpc_others_even_r = "255",
+        tpc_others_even_g = "0",
+        tpc_others_even_b = "0",
+        tpc_others_even_a = "115",
+        tpc_others_odd_r = "255",
+        tpc_others_odd_g = "0",
+        tpc_others_odd_b = "0",
+        tpc_others_odd_a = "52"
     }
 }
