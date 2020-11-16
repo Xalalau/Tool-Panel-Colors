@@ -2,3 +2,7 @@
 	-- Apply the current colors on all players (server/admin)
 	-- Use custom client colors over the server selection (client)
 - Add highlight color
+- Support colors per dcategory
+- Add tool right side images support
+- Add tool reorganizer
+- Rename to Ultimate Tool Panel Customizer
