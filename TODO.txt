@@ -6,3 +6,4 @@
 - Add tool right side images support
 - Add tool reorganizer
 - Rename to Ultimate Tool Panel Customizer
+- Center color selector legend elements
