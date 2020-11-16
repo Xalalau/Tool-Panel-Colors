@@ -3,22 +3,23 @@
     https://xalalau.com/
 --]]
 
-CreateClientConVar("tpc_gmod_even_r", "255")
-CreateClientConVar("tpc_gmod_even_g", "255")
-CreateClientConVar("tpc_gmod_even_b", "255")
-CreateClientConVar("tpc_gmod_even_a", "255")
-CreateClientConVar("tpc_gmod_odd_r", "255")
-CreateClientConVar("tpc_gmod_odd_g", "255")
-CreateClientConVar("tpc_gmod_odd_b", "255")
-CreateClientConVar("tpc_gmod_odd_a", "255")
-CreateClientConVar("tpc_others_even_r", "160")
-CreateClientConVar("tpc_others_even_g", "97")
-CreateClientConVar("tpc_others_even_b", "255")
-CreateClientConVar("tpc_others_even_a", "67")
-CreateClientConVar("tpc_others_odd_r", "255")
-CreateClientConVar("tpc_others_odd_g", "116")
-CreateClientConVar("tpc_others_odd_b", "255")
-CreateClientConVar("tpc_others_odd_a", "85")
+CreateClientConVar("tpc_first_run", "0")
+CreateClientConVar("tpc_gmod_even_r", "")
+CreateClientConVar("tpc_gmod_even_g", "")
+CreateClientConVar("tpc_gmod_even_b", "")
+CreateClientConVar("tpc_gmod_even_a", "")
+CreateClientConVar("tpc_gmod_odd_r", "")
+CreateClientConVar("tpc_gmod_odd_g", "")
+CreateClientConVar("tpc_gmod_odd_b", "")
+CreateClientConVar("tpc_gmod_odd_a", "")
+CreateClientConVar("tpc_others_even_r", "")
+CreateClientConVar("tpc_others_even_g", "")
+CreateClientConVar("tpc_others_even_b", "")
+CreateClientConVar("tpc_others_even_a", "")
+CreateClientConVar("tpc_others_odd_r", "")
+CreateClientConVar("tpc_others_odd_g", "")
+CreateClientConVar("tpc_others_odd_b", "")
+CreateClientConVar("tpc_others_odd_a", "")
 
 function TPC:TableToColor(colorTable)
     return Color(colorTable.r, colorTable.g, colorTable.b, colorTable.a)
@@ -32,6 +33,20 @@ function TPC:SetNewToolColors(toolType, lineType, colorTable)
     self.colors[toolType][lineType] = self:TableToColor(colorTable)
 end
 
+-- Apply a preset if the addon is being initialized for the first time
+function TPC:InitFirstRun()
+    if not GetConVar("tpc_first_run"):GetBool() then
+        for k,v in pairs(TPC.presets[self.defaultPreset]) do
+            RunConsoleCommand(k, v)
+        end
+
+        RunConsoleCommand("tpc_first_run", "1")
+
+        return true
+    end
+end
+
+-- Load the colors from the cvars to self.colors
 function TPC:InitToolColors()
     local function GetCurrentColors(toolType, lineType)
         return {

@@ -8,7 +8,7 @@ local function AddPresets(CPanel, previewColors)
         presets:Dock(TOP)
         presets:DockMargin(10, 10, 10, 0)
         presets:SetPreset("tpc")
-        for k, v in pairs(TPC.options) do
+        for k, v in pairs(TPC.presets) do
             presets:AddOption(k, v)
 
             for cvar,_ in pairs(v) do

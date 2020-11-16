@@ -57,7 +57,9 @@ TPC.fakeToolsList = {
     { "Others", "Custom Tool 7" },
 }
 
-TPC.options = {
+TPC.defaultPreset = "Menta"
+
+TPC.presets = {
     ["[Default]"] = {
         tpc_gmod_even_r = "255",
         tpc_gmod_even_g = "255",
