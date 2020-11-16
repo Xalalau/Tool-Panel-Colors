@@ -3,6 +3,29 @@
     https://xalalau.com/
 --]]
 
+function TCP:InitGui()
+    local toolPanelList = g_SpawnMenu.ToolMenu.ToolPanels[1].List
+    local dark = true
+
+    for _, col in ipairs(toolPanelList.pnlCanvas:GetChildren()) do
+        for __, pnl in ipairs(col:GetChildren()) do
+            if pnl.ClassName == "DCategoryHeader" then
+                dark = true
+            else
+                local toolType = self.defaultTools[pnl.Name] and "GMod" or "Custom"
+                local lineType = dark and "dark" or "bright"
+
+                self:SetPaint(pnl, toolType, lineType)
+
+                dark = not dark and true or false
+            end
+        end
+
+        col:InvalidateLayout() -- Checar se isso é útil
+        toolPanelList.pnlCanvas:InvalidateLayout()
+    end
+end
+
 local function AddPresets(CPanel, previewColors)
     local presets = vgui.Create("ControlPresets", CPanel)
         presets:Dock(TOP)
@@ -241,6 +264,11 @@ hook.Add("PopulateToolMenu", "CreateCMenu", function()
     end
 
     spawnmenu.AddToolMenuOption("Utilities", "Admin", "TPC", "Tool Panel Colors", "", "", wrapper)
+end)
+
+hook.Add("PostReloadToolsMenu", "PaintMenus", function()
+    TPC:InitGui()
+    TPC:InitGui() -- HACK: this will force the menu to show the correct colors
 end)
 
 function TPC:Test()

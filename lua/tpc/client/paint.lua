@@ -74,31 +74,3 @@ function TPC:SetPaint(pnl, toolType, lineType)
         return self:_Paint(w, h)
     end
 end
-
-function TPC:PaintToolPanel()
-    local toolPanelList = g_SpawnMenu.ToolMenu.ToolPanels[1].List
-    local dark = true
-
-    for _, col in ipairs(toolPanelList.pnlCanvas:GetChildren()) do
-        for __, pnl in ipairs(col:GetChildren()) do
-            if pnl.ClassName ~= "DCategoryHeader" then
-                local toolType = self.defaultTools[pnl.Name] and "GMod" or "Custom"
-                local lineType = dark and "dark" or "bright"
-
-                self:SetPaint(pnl, toolType, lineType)
-
-                dark = not dark and true or false
-            else
-                dark = true
-            end
-        end
-
-        col:InvalidateLayout() -- Checar se isso é útil
-        toolPanelList.pnlCanvas:InvalidateLayout()
-    end
-end
-
-hook.Add("PostReloadToolsMenu", "PaintMenus", function()
-    TPC:PaintToolPanel()
-    TPC:PaintToolPanel() -- HACK: this will force the menu to show the correct colors
-end)
