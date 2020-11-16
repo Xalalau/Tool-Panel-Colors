@@ -34,14 +34,8 @@ end
 
 -- Apply a preset if the addon is being initialized for the first time
 function TPC:InitColorsFirstRun()
-    if not GetConVar("tpc_first_run"):GetBool() then
-        for k,v in pairs(TPC.presets[self.defaultPreset]) do
-            RunConsoleCommand(k, v)
-        end
-
-        RunConsoleCommand("tpc_first_run", "1")
-
-        return true
+    for k,v in pairs(TPC.presets[self.defaultPreset]) do
+        RunConsoleCommand(k, v)
     end
 end
 
