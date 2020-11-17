@@ -29,7 +29,7 @@ function TPC:SetPaint(pnl, toolType, lineType, setRightClick, startHighlighted)
     pnl._Paint = pnl._Paint or pnl.Paint
 
     function pnl:Paint(w, h)
-        surface.SetDrawColor(TPC.colors[highlight and "Highlight" or toolType][highlight and 1 or lineType])
+        surface.SetDrawColor(TPC.colors[highlight and "Highlight" or toolType][lineType])
         surface.DrawRect(0, 0, w, h)
 
         return self:_Paint(w, h)
@@ -205,7 +205,8 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     SetColorButton("GMod", "bright", 1)
     SetColorButton("Custom", "dark", 2)
     SetColorButton("Custom", "bright", 3)
-    SetColorButton("Highlight", 1, 4)
+    SetColorButton("Highlight", "dark", 4)
+    SetColorButton("Highlight", "bright", 5)
 
     -- ---------------------
     -- Color mixer
@@ -219,16 +220,15 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         colorControlsPanel:Hide()
 
     local function SetColorMixer(toolType, lineType)
-        local isHighlight = toolType == "Highlight"
         colorControls[toolType][lineType] = vgui.Create("DColorMixer", colorControlsPanel)
             colorControls[toolType][lineType]:SetSize(200, colorMixerHeight)
             colorControls[toolType][lineType]:SetPalette(false)
             colorControls[toolType][lineType]:SetAlphaBar(true)
             colorControls[toolType][lineType]:SetWangs(true)
-            colorControls[toolType][lineType]:SetConVarR("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_r")
-            colorControls[toolType][lineType]:SetConVarG("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_g")
-            colorControls[toolType][lineType]:SetConVarB("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_b")
-            colorControls[toolType][lineType]:SetConVarA("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_a")
+            colorControls[toolType][lineType]:SetConVarR("tpc_" .. toolType .. "_" .. lineType .. "_r")
+            colorControls[toolType][lineType]:SetConVarG("tpc_" .. toolType .. "_" .. lineType .. "_g")
+            colorControls[toolType][lineType]:SetConVarB("tpc_" .. toolType .. "_" .. lineType .. "_b")
+            colorControls[toolType][lineType]:SetConVarA("tpc_" .. toolType .. "_" .. lineType .. "_a")
             colorControls[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             colorControls[toolType][lineType]:Hide()
             colorControls[toolType][lineType].ValueChanged = function(self, colorTable)

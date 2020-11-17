@@ -19,20 +19,22 @@ CreateClientConVar("tpc_custom_dark_r", "")
 CreateClientConVar("tpc_custom_dark_g", "")
 CreateClientConVar("tpc_custom_dark_b", "")
 CreateClientConVar("tpc_custom_dark_a", "")
-CreateClientConVar("tpc_highlight_r", "")
-CreateClientConVar("tpc_highlight_g", "")
-CreateClientConVar("tpc_highlight_b", "")
-CreateClientConVar("tpc_highlight_a", "")
+CreateClientConVar("tpc_highlight_dark_r", "")
+CreateClientConVar("tpc_highlight_dark_g", "")
+CreateClientConVar("tpc_highlight_dark_b", "")
+CreateClientConVar("tpc_highlight_dark_a", "")
+CreateClientConVar("tpc_highlight_bright_r", "")
+CreateClientConVar("tpc_highlight_bright_g", "")
+CreateClientConVar("tpc_highlight_bright_b", "")
+CreateClientConVar("tpc_highlight_bright_a", "")
 
 function TPC:TableToColor(colorTable)
     return Color(colorTable.r, colorTable.g, colorTable.b, colorTable.a)
 end
 
 function TPC:SetToolColors(toolType, lineType, colorTable)
-    local isHighlight = toolType == "Highlight"
-
     for k,v in pairs(colorTable) do
-        RunConsoleCommand("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_" .. k, v)
+        RunConsoleCommand("tpc_" .. toolType .. "_" .. lineType .. "_" .. k, v)
     end
 
     self.colors[toolType][lineType] = self:TableToColor(colorTable)
@@ -48,13 +50,11 @@ end
 -- Load the colors from the cvars to self.colors
 function TPC:InitColors()
     local function GetCurrentColors(toolType, lineType)
-        local isHighlight = toolType == "Highlight"
-
         return {
-            r = GetConVar("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_r"):GetInt(),
-            g = GetConVar("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_g"):GetInt(),
-            b = GetConVar("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_b"):GetInt(),
-            a = GetConVar("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_a"):GetInt()
+            r = GetConVar("tpc_" .. toolType .. "_" .. lineType .. "_r"):GetInt(),
+            g = GetConVar("tpc_" .. toolType .. "_" .. lineType .. "_g"):GetInt(),
+            b = GetConVar("tpc_" .. toolType .. "_" .. lineType .. "_b"):GetInt(),
+            a = GetConVar("tpc_" .. toolType .. "_" .. lineType .. "_a"):GetInt()
         }
     end
 
