@@ -264,6 +264,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     local function SimulateToolList(position, toolType, lineType, text, parent, highligthed)
         local posY = toolEntryHeight * position + extraDCollapsibleHeight
         local textColor = lineType == "bright" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255)
+        toolType = highligthed and "Highlight" or toolType
 
         local toolEntry = vgui.Create("DPanel", parent)
             toolEntry:SetPos(0, posY)
