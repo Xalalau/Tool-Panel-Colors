@@ -79,7 +79,7 @@ local function AddPresets(CPanel, previewColors)
 end
 
 local function AddColorSelector(CPanel, colorControls, previewColors)
-    local previewSize = 50
+    local previewSize = 20
     local colorControlsPanel
 
     -- ---------------------
@@ -87,10 +87,12 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     -- ---------------------
 
     -- GMod tools / Custom tools
-    local sectionHeight = 20
+    local sectionHeaderHeight = 20
+    local previewHeight = 28
+
     local previewColorsPanel = vgui.Create("DPanel", CPanel)
         previewColorsPanel:Dock(TOP)
-        previewColorsPanel:SetTall(previewSize + sectionHeight * 3)
+        previewColorsPanel:SetTall(previewHeight * 3 + sectionHeaderHeight)
         previewColorsPanel:DockMargin(10, 10, 10, 0)
         previewColorsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
@@ -113,62 +115,86 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         pressedButton.background:Show()
     end
 
-    local back1 = vgui.Create( "DPanel", previewColorsPanel)
-        back1:SetSize(previewSize * 2, sectionHeight * 2 + previewSize)
-        back1:SetBackgroundColor(Color(0, 0, 0, 80))
+    local sectionTableWidth = 162
+    local sectionHeaderLeft = sectionTableWidth + 10
 
-    local section1 = vgui.Create( "DLabel", previewColorsPanel)
-        section1:SetSize(previewSize * 2, sectionHeight)
-        section1:SetText("  GMod default tools")
-        section1:SetTextColor(color_black)
+    local column1 = vgui.Create( "DLabel", previewColorsPanel)
+        column1:SetSize(previewSize * 2, previewSize)
+        column1:SetPos(sectionHeaderLeft, sectionHeaderHeight + 3)
+        column1:SetText("Dark")
+        column1:SetTextColor(color_black)
 
-    local subSection1 = vgui.Create( "DLabel", previewColorsPanel)
-        subSection1:SetSize(previewSize * 2, sectionHeight)
-        subSection1:SetPos(0, sectionHeight)
-        subSection1:SetText("     Dark        Bright")
-        subSection1:SetTextColor(color_black)
+    local column2 = vgui.Create( "DLabel", previewColorsPanel)
+        column2:SetSize(previewSize * 2, previewSize)
+        column2:SetPos(sectionHeaderLeft, sectionHeaderHeight * 2 + 12)
+        column2:SetText("Bright")
+        column2:SetTextColor(color_black)
 
-    local back2 = vgui.Create( "DPanel", previewColorsPanel)
-        back2:SetSize(previewSize * 2, sectionHeight * 2 + previewSize)
-        back2:SetPos(previewSize * 2, 0)
-        back2:SetBackgroundColor(Color(0, 0, 0, 145))
+    local column3 = vgui.Create( "DLabel", previewColorsPanel)
+        column3:SetSize(previewSize * 2, previewSize)
+        column3:SetPos(sectionHeaderLeft, sectionHeaderHeight * 3 + 19)
+        column3:SetText("Font")
+        column3:SetTextColor(color_black)
 
-    local section2 = vgui.Create( "DLabel", previewColorsPanel)
-        section2:SetSize(previewSize * 2, sectionHeight)
-        section2:SetPos(section1:GetWide(), 0)
-        section2:SetText("      Custom tools")
-        section2:SetTextColor(color_white)
+    local sectionXInfo = {
+        { left = 14, name = "GMod" },
+        { left = 12, name = "Addon" },
+        { left = 7, name = "Highlihgt" }
+    }
 
-    local subSection2 = vgui.Create( "DLabel", previewColorsPanel)
-        subSection2:SetSize(previewSize * 2, sectionHeight)
-        subSection2:SetPos(section1:GetWide(), sectionHeight)
-        subSection2:SetText("     Dark        Bright")
-        subSection2:SetTextColor(color_white)
+    local function SetColorButton(toolType, lineType, positionY)
+        local maxMixersPerSection = 2
 
-    local function SetColorButton(toolType, lineType, position)
+        local columnParts = 3
+        local columnSize = sectionTableWidth / 3
+
+        local positionX = math.floor(positionY / maxMixersPerSection) * columnParts
+        local sectionXIndex = positionX > 1 and (positionX / columnParts + 1) or 1
+        positionX = (sectionXIndex - 1) * columnSize
+        positionY = positionY % maxMixersPerSection
+
+        -- legends
+        if positionY == 0 then
+            local backSectionHeader = vgui.Create( "DPanel", previewColorsPanel)
+                backSectionHeader:SetSize(columnSize, sectionHeaderHeight - 1)
+                backSectionHeader:SetPos(positionX, 0)
+                backSectionHeader:SetBackgroundColor(Color(124, 190, 255, 130 * (sectionXIndex % 2 == 0 and 1.6 or 1)))
+
+            local backSection = vgui.Create( "DPanel", previewColorsPanel)
+                backSection:SetSize(columnSize, sectionHeaderHeight + previewHeight * 3)
+                backSection:SetPos(positionX, 0)
+                backSection:SetBackgroundColor(Color(0, 0, 0, 25 * (sectionXIndex % 2 == 0 and 2.4 or 1.2)))
+
+            local section = vgui.Create( "DLabel", previewColorsPanel)
+                section:SetSize(columnSize, sectionHeaderHeight)
+                section:SetPos(positionX + sectionXInfo[sectionXIndex].left, 0)
+                section:SetText(sectionXInfo[sectionXIndex].name)
+                section:SetTextColor(sectionXIndex % 2 == 1 and Color(0, 0, 0, 200) or color_white)
+        end
+
         -- Selection box
         local background = vgui.Create("DPanel", previewColorsPanel)
-            background:SetPos(previewSize * position, sectionHeight * 2)
-            background:SetSize(previewSize, previewSize)
-            background:SetBackgroundColor(Color(0, 0, 0, 255))
+            background:SetPos(positionX + 2, sectionHeaderHeight + positionY * previewHeight)
+            background:SetSize(columnSize - 4, previewHeight)
+            background:SetBackgroundColor(color_black)
             background:Hide()
 
         -- Applied color
         previewColors[toolType][lineType] = vgui.Create("DColorButton", previewColorsPanel)
             previewColors[toolType][lineType].background = background
-            previewColors[toolType][lineType]:SetPos(previewSize * position + 2, sectionHeight * 2 + 2)
-            previewColors[toolType][lineType]:SetSize(previewSize - 4, previewSize - 4)
+            previewColors[toolType][lineType]:SetPos(positionX + 4, sectionHeaderHeight + positionY * previewHeight + 2)
+            previewColors[toolType][lineType]:SetSize(columnSize - 8, previewHeight - 4)
             previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             previewColors[toolType][lineType].DoClick = function(self)
                 SelectColorMixer(previewColors[toolType][lineType], colorControls[toolType][lineType])
             end
             local pnlAux = previewColors[toolType][lineType]
             pnlAux._Paint = pnlAux.Paint
-            pnlAux.dark = lineType == "dark" and true or false
+            pnlAux.dark = lineType == "dark" and true
             function pnlAux:Paint(w, h)
                 self:_Paint(w, h)
 
-                if pnlAux.dark then
+                if self.dark then
                     surface.SetDrawColor(Color(0, 0, 0, 27))
                     surface.DrawRect(0, 0, w, h)
                 end
@@ -179,45 +205,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     SetColorButton("GMod", "bright", 1)
     SetColorButton("Custom", "dark", 2)
     SetColorButton("Custom", "bright", 3)
-
-    -- Highlight
-    local _, back3Pos = previewColors["GMod"]["dark"]:GetPos()
-    back3Pos = back3Pos + previewColors["GMod"]["dark"]:GetTall() + 2
-    local highlightHeight = sectionHeight - 4
-    local back3 = vgui.Create( "DPanel", previewColorsPanel)
-        back3:SetSize(previewSize * 4, highlightHeight)
-        back3:SetPos(0, back3Pos)
-        back3:SetBackgroundColor(Color(0, 0, 0, 180))
-
-    local section3 = vgui.Create( "DLabel", previewColorsPanel)
-        section3:SetSize(previewSize, highlightHeight)
-        section3:SetPos(6, back3Pos)
-        section3:SetText("Highlight")
-        section3:SetTextColor(color_white)
-
-    -- Selection box
-    local backgroundPreview3 = vgui.Create("DPanel", previewColorsPanel)
-        backgroundPreview3:SetPos(previewSize, back3Pos)
-        backgroundPreview3:SetSize(previewSize * 3, highlightHeight)
-        backgroundPreview3:SetBackgroundColor(Color(0, 0, 0, 255))
-        backgroundPreview3:Hide()
-
-    -- Applied color
-    previewColors["Highlight"][1] = vgui.Create("DColorButton", previewColorsPanel)
-        previewColors["Highlight"][1].background = backgroundPreview3
-        previewColors["Highlight"][1]:SetPos(previewSize + 2, back3Pos + 2)
-        previewColors["Highlight"][1]:SetSize(previewSize * 3 - 4, highlightHeight - 4)
-        previewColors["Highlight"][1]:SetColor(TPC.colors["Highlight"][1])
-        previewColors["Highlight"][1].DoClick = function(self)
-            SelectColorMixer(previewColors["Highlight"][1], colorControls["Highlight"][1])
-        end
-        local pnlAux2 = previewColors["Highlight"][1]
-        pnlAux2._Paint = pnlAux2.Paint
-        function pnlAux2:Paint(w, h)
-            self:_Paint(w, h)
-            surface.SetDrawColor(Color(0, 0, 0, 27))
-            surface.DrawRect(0, 0, w/2, h)
-        end
+    SetColorButton("Highlight", 1, 4)
 
     -- ---------------------
     -- Color mixer
@@ -225,7 +213,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     local colorMixerHeight = 92
     colorControlsPanel = vgui.Create("DPanel", CPanel)
         colorControlsPanel:Dock(TOP)
-        colorControlsPanel:SetSize(previewSize * 4, colorMixerHeight)
+        colorControlsPanel:SetTall(colorMixerHeight)
         colorControlsPanel:DockMargin(10, 10, 10, 0)
         colorControlsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
         colorControlsPanel:Hide()
@@ -233,7 +221,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     local function SetColorMixer(toolType, lineType)
         local isHighlight = toolType == "Highlight"
         colorControls[toolType][lineType] = vgui.Create("DColorMixer", colorControlsPanel)
-            colorControls[toolType][lineType]:SetSize(colorControlsPanel:GetWide(), colorMixerHeight)
+            colorControls[toolType][lineType]:SetSize(200, colorMixerHeight)
             colorControls[toolType][lineType]:SetPalette(false)
             colorControls[toolType][lineType]:SetAlphaBar(true)
             colorControls[toolType][lineType]:SetWangs(true)
@@ -264,13 +252,13 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     -- Fake tool list
     -- ---------------------
 
-    local toolEntryWidth = 161
+    local toolEntryWidth = 162
     local toolEntryHeight = 17
     local extraDCollapsibleHeight = 3
     local fakeToolsListPanel = vgui.Create("DPanel", CPanel)
         fakeToolsListPanel:Dock(TOP)
         fakeToolsListPanel:SetTall(#TPC.fakeToolsList * (toolEntryHeight + 1) + extraDCollapsibleHeight * 2)
-        fakeToolsListPanel:DockMargin(30, 10, 10, 0)
+        fakeToolsListPanel:DockMargin(10, 10, 10, 0)
         fakeToolsListPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
     local function SimulateToolList(position, toolType, lineType, text, parent, highligthed)
@@ -293,7 +281,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
 
         local tool = vgui.Create( "DLabel", parent)
             tool:SetSize(toolEntryWidth/5, toolEntryHeight)
-            tool:SetPos((toolEntryWidth/5) * 4, posY)
+            tool:SetPos((toolEntryWidth/5) * 4 + 44, posY)
             tool:SetText(lineType == "bright" and "Bright" or "Dark")
             tool:SetTextColor(lineType == "bright" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
     end
