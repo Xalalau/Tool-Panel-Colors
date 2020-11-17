@@ -51,7 +51,7 @@ if CLIENT then
 
     TPC:InitHighlights()
 
-    if firstRun then
+    if firstRun:GetInt() == 1 then
         TPC:InitColorsFirstRun()
 
         local name = "tpc" .. tostring(LocalPlayer())
