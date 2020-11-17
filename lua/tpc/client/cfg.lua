@@ -15,8 +15,14 @@ TPC.colors = {
     Custom = {
         bright = true,
         dark = true
+    },
+    Highlight = {
+        [1] = true
     }
 }
+
+-- ["panel"] = true
+TPC.highlights = {}
 
 TPC.defaultTools = {
     ["axis"] = true,
@@ -54,12 +60,13 @@ TPC.defaultTools = {
     ["trails"] = true
 }
 
+-- { "toolType", "toolName", "highlight" or nil }
 TPC.fakeToolsList = {
     { "GMod", "Axis" },
     { "GMod", "Ball Socket" },
     { "GMod", "Elastic" },
     { "GMod", "Hydraulic" },
-    { "GMod", "Motor" },
+    { "GMod", "Motor (highlighted)", "highlight" },
     { "Custom", "Custom Tool 1" },
     { "Custom", "Custom Tool 2" },
     { "GMod", "Muscle" },
@@ -70,6 +77,8 @@ TPC.fakeToolsList = {
     { "Custom", "Custom Tool 5" },
     { "Custom", "Custom Tool 6" },
     { "Custom", "Custom Tool 7" },
+    { "GMod", "Slider (highlighted)", "highlight" },
+    { "GMod", "Weld" },
 }
 
 TPC.presets = {
@@ -89,7 +98,11 @@ TPC.presets = {
         tpc_custom_dark_r = "255",
         tpc_custom_dark_g = "255",
         tpc_custom_dark_b = "255",
-        tpc_custom_dark_a = "255"
+        tpc_custom_dark_a = "255",
+        tpc_highlight_r = "255",
+        tpc_highlight_g = "255",
+        tpc_highlight_b = "255",
+        tpc_highlight_a = "255"
     },
     ["Tutti Frutti"] = {
         tpc_gmod_bright_r = "255",
@@ -107,7 +120,11 @@ TPC.presets = {
         tpc_custom_dark_r = "255",
         tpc_custom_dark_g = "116",
         tpc_custom_dark_b = "255",
-        tpc_custom_dark_a = "85"
+        tpc_custom_dark_a = "85",
+        tpc_highlight_r = "250",
+        tpc_highlight_g = "157",
+        tpc_highlight_b = "255",
+        tpc_highlight_a = "255"
     },
     ["Saara"] = {
         tpc_gmod_bright_r = "255",
@@ -125,7 +142,11 @@ TPC.presets = {
         tpc_custom_dark_r = "255",
         tpc_custom_dark_g = "255",
         tpc_custom_dark_b = "100",
-        tpc_custom_dark_a = "63"
+        tpc_custom_dark_a = "63",
+        tpc_highlight_r = "255",
+        tpc_highlight_g = "255",
+        tpc_highlight_b = "62",
+        tpc_highlight_a = "255"
     },
     ["Menta"] = {
         tpc_gmod_bright_r = "255",
@@ -143,7 +164,11 @@ TPC.presets = {
         tpc_custom_dark_r = "99",
         tpc_custom_dark_g = "255",
         tpc_custom_dark_b = "130",
-        tpc_custom_dark_a = "70"
+        tpc_custom_dark_a = "70",
+        tpc_highlight_r = "0",
+        tpc_highlight_g = "255",
+        tpc_highlight_b = "110",
+        tpc_highlight_a = "255"
     },
     ["BSDO"] = {
         tpc_gmod_bright_r = "255",
@@ -161,7 +186,11 @@ TPC.presets = {
         tpc_custom_dark_r = "115",
         tpc_custom_dark_g = "208",
         tpc_custom_dark_b = "255",
-        tpc_custom_dark_a = "85"
+        tpc_custom_dark_a = "85",
+        tpc_highlight_r = "65",
+        tpc_highlight_g = "198",
+        tpc_highlight_b = "255",
+        tpc_highlight_a = "180"
     },
     ["Wine"] = {
         tpc_gmod_bright_r = "255",
@@ -179,6 +208,10 @@ TPC.presets = {
         tpc_custom_dark_r = "255",
         tpc_custom_dark_g = "0",
         tpc_custom_dark_b = "0",
-        tpc_custom_dark_a = "44"
+        tpc_custom_dark_a = "44",
+        tpc_highlight_r = "255",
+        tpc_highlight_g = "136",
+        tpc_highlight_b = "136",
+        tpc_highlight_a = "255"
     }
 }

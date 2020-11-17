@@ -6,10 +6,22 @@
 TPC = {}
 
 TPC.FOLDER = {}
-TPC.FOLDER.LUA = "tpc/"
+TPC.FOLDER.LUA = "tpc"
 TPC.FOLDER.DATA = "tpc"
-TPC.FOLDER.SV_MODULES = TPC.FOLDER.LUA .. "server/"
-TPC.FOLDER.CL_MODULES = TPC.FOLDER.LUA .. "client/"
+TPC.FOLDER.SV_MODULES = TPC.FOLDER.LUA .. "/server/"
+TPC.FOLDER.CL_MODULES = TPC.FOLDER.LUA .. "/client/"
+TPC.FILE = {}
+TPC.FILE.HIGHLIGHTS = TPC.FOLDER.DATA .. "/" .. "highlights.json"
+
+if CLIENT then
+    local function CreateDir(path)
+        if not file.Exists(path, "Data") then
+            file.CreateDir(path)
+        end
+    end
+
+    CreateDir(TPC.FOLDER.DATA)
+end
 
 local function includeModules(dir, isClientModule)
     local files, dirs = file.Find( dir.."*", "LUA" )
@@ -36,6 +48,8 @@ includeModules(TPC.FOLDER.CL_MODULES, true)
 
 if CLIENT then
     local firstRun = CreateClientConVar("tpc_first_run", "1")
+
+    TPC:InitHighlights()
 
     if firstRun then
         TPC:InitColorsFirstRun()

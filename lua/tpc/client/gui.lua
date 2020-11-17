@@ -15,7 +15,7 @@ function TPC:InitGui()
                 local toolType = self.defaultTools[pnl.Name] and "GMod" or "Custom"
                 local lineType = dark and "dark" or "bright"
 
-                self:SetPaint(pnl, toolType, lineType)
+                self:SetPaint(pnl, toolType, lineType, true)
 
                 dark = not dark and true or false
             end
@@ -23,14 +23,29 @@ function TPC:InitGui()
     end
 end
 
-function TPC:SetPaint(pnl, toolType, lineType)
+function TPC:SetPaint(pnl, toolType, lineType, setRightClick, startHighlighted)
+    local highlight = startHighlighted or TPC.highlights[pnl.Name]
+
     pnl._Paint = pnl._Paint or pnl.Paint
 
     function pnl:Paint(w, h)
-        surface.SetDrawColor(TPC.colors[toolType][lineType])
+        surface.SetDrawColor(TPC.colors[highlight and "Highlight" or toolType][highlight and 1 or lineType])
         surface.DrawRect(0, 0, w, h)
 
         return self:_Paint(w, h)
+    end
+
+    if setRightClick then
+        pnl._DoRightClick = pnl._DoRightClick or pnl.DoRightClick
+
+        function pnl:DoRightClick()
+            highlight = not highlight and true or false
+
+            TPC:SetHighlight(pnl.Name, highlight)
+            TPC:SaveHighlights()
+
+            return self:_DoRightClick()
+        end
     end
 end
 
@@ -70,10 +85,12 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     -- ---------------------
     -- Menu selectors
     -- ---------------------
+
+    -- GMod tools / Custom tools
     local sectionHeight = 20
     local previewColorsPanel = vgui.Create("DPanel", CPanel)
         previewColorsPanel:Dock(TOP)
-        previewColorsPanel:SetTall(previewSize + sectionHeight * 2)
+        previewColorsPanel:SetTall(previewSize + sectionHeight * 3)
         previewColorsPanel:DockMargin(10, 10, 10, 0)
         previewColorsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
@@ -114,7 +131,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     local back2 = vgui.Create( "DPanel", previewColorsPanel)
         back2:SetSize(previewSize * 2, sectionHeight * 2 + previewSize)
         back2:SetPos(previewSize * 2, 0)
-        back2:SetBackgroundColor(Color(0, 0, 0, 170))
+        back2:SetBackgroundColor(Color(0, 0, 0, 145))
 
     local section2 = vgui.Create( "DLabel", previewColorsPanel)
         section2:SetSize(previewSize * 2, sectionHeight)
@@ -141,7 +158,6 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             previewColors[toolType][lineType].background = background
             previewColors[toolType][lineType]:SetPos(previewSize * position + 2, sectionHeight * 2 + 2)
             previewColors[toolType][lineType]:SetSize(previewSize - 4, previewSize - 4)
-            previewColors[toolType][lineType]:Paint(previewSize, previewSize)
             previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             previewColors[toolType][lineType].DoClick = function(self)
                 SelectColorMixer(previewColors[toolType][lineType], colorControls[toolType][lineType])
@@ -164,6 +180,45 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     SetColorButton("Custom", "dark", 2)
     SetColorButton("Custom", "bright", 3)
 
+    -- Highlight
+    local _, back3Pos = previewColors["GMod"]["dark"]:GetPos()
+    back3Pos = back3Pos + previewColors["GMod"]["dark"]:GetTall() + 2
+    local highlightHeight = sectionHeight - 4
+    local back3 = vgui.Create( "DPanel", previewColorsPanel)
+        back3:SetSize(previewSize * 4, highlightHeight)
+        back3:SetPos(0, back3Pos)
+        back3:SetBackgroundColor(Color(0, 0, 0, 180))
+
+    local section3 = vgui.Create( "DLabel", previewColorsPanel)
+        section3:SetSize(previewSize, highlightHeight)
+        section3:SetPos(6, back3Pos)
+        section3:SetText("Highlight")
+        section3:SetTextColor(color_white)
+
+    -- Selection box
+    local backgroundPreview3 = vgui.Create("DPanel", previewColorsPanel)
+        backgroundPreview3:SetPos(previewSize, back3Pos)
+        backgroundPreview3:SetSize(previewSize * 3, highlightHeight)
+        backgroundPreview3:SetBackgroundColor(Color(0, 0, 0, 255))
+        backgroundPreview3:Hide()
+
+    -- Applied color
+    previewColors["Highlight"][1] = vgui.Create("DColorButton", previewColorsPanel)
+        previewColors["Highlight"][1].background = backgroundPreview3
+        previewColors["Highlight"][1]:SetPos(previewSize + 2, back3Pos + 2)
+        previewColors["Highlight"][1]:SetSize(previewSize * 3 - 4, highlightHeight - 4)
+        previewColors["Highlight"][1]:SetColor(TPC.colors["Highlight"][1])
+        previewColors["Highlight"][1].DoClick = function(self)
+            SelectColorMixer(previewColors["Highlight"][1], colorControls["Highlight"][1])
+        end
+        local pnlAux2 = previewColors["Highlight"][1]
+        pnlAux2._Paint = pnlAux2.Paint
+        function pnlAux2:Paint(w, h)
+            self:_Paint(w, h)
+            surface.SetDrawColor(Color(0, 0, 0, 27))
+            surface.DrawRect(0, 0, w/2, h)
+        end
+
     -- ---------------------
     -- Color mixer
     -- ---------------------
@@ -176,27 +231,32 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         colorControlsPanel:Hide()
 
     local function SetColorMixer(toolType, lineType)
+        local isHighlight = toolType == "Highlight"
         colorControls[toolType][lineType] = vgui.Create("DColorMixer", colorControlsPanel)
             colorControls[toolType][lineType]:SetSize(colorControlsPanel:GetWide(), colorMixerHeight)
             colorControls[toolType][lineType]:SetPalette(false)
             colorControls[toolType][lineType]:SetAlphaBar(true)
             colorControls[toolType][lineType]:SetWangs(true)
-            colorControls[toolType][lineType]:SetConVarR("tpc_" .. toolType .. "_" .. lineType .. "_r")
-            colorControls[toolType][lineType]:SetConVarG("tpc_" .. toolType .. "_" .. lineType .. "_g")
-            colorControls[toolType][lineType]:SetConVarB("tpc_" .. toolType .. "_" .. lineType .. "_b")
-            colorControls[toolType][lineType]:SetConVarA("tpc_" .. toolType .. "_" .. lineType .. "_a")
+            colorControls[toolType][lineType]:SetConVarR("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_r")
+            colorControls[toolType][lineType]:SetConVarG("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_g")
+            colorControls[toolType][lineType]:SetConVarB("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_b")
+            colorControls[toolType][lineType]:SetConVarA("tpc_" .. toolType .. (isHighlight and "" or ("_" .. lineType)) .. "_a")
             colorControls[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             colorControls[toolType][lineType]:Hide()
             colorControls[toolType][lineType].ValueChanged = function(self, colorTable)
                 -- Note: SetConVar"RGBA" is applying past values instead of current ones, so I'm doing a convar refresh here
-                TPC:SetColors(toolType, lineType, colorTable)
+                TPC:SetToolColors(toolType, lineType, colorTable)
                 previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             end
     end
 
-    for toolType,tpnl in pairs(colorControls) do
-        for lineType,lpnl in pairs(tpnl) do
-            SetColorMixer(toolType, lineType)
+    for toolType,typeTable in pairs(colorControls) do
+        if istable(typeTable) then
+            for lineType,_ in pairs(typeTable) do
+                SetColorMixer(toolType, lineType)
+            end
+        else
+            SetColorMixer(toolType, 1)
         end
     end
 
@@ -213,7 +273,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         fakeToolsListPanel:DockMargin(30, 10, 10, 0)
         fakeToolsListPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
-    local function SimulateToolList(position, toolType, lineType, text, parent)
+    local function SimulateToolList(position, toolType, lineType, text, parent, highligthed)
         local posY = toolEntryHeight * position + extraDCollapsibleHeight
 
         local toolEntry = vgui.Create("DPanel", parent)
@@ -223,7 +283,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             toolEntry.OnMousePressed = function(...)
                 previewColors[toolType][lineType]:DoClick(...)
             end
-            TPC:SetPaint(toolEntry, toolType, lineType)
+            TPC:SetPaint(toolEntry, toolType, lineType, false, highligthed)
 
         local toolName = vgui.Create( "DLabel", parent)
             toolName:SetSize(toolEntryWidth, toolEntryHeight)
@@ -246,7 +306,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     for k,v in ipairs(TPC.fakeToolsList) do
         local lineType = k % 2 == 0 and "bright" or "dark"
 
-        SimulateToolList(k, v[1], lineType, v[2], fakeToolsListPanel)
+        SimulateToolList(k, v[1], lineType, v[2], fakeToolsListPanel, v[3] and true)
     end
 end
 
