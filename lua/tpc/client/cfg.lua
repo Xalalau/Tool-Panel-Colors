@@ -69,18 +69,18 @@ TPC.fakeToolsList = {
     { "GMod", "Hydraulic" },
     { "GMod", "Motor" },
     { "GMod", "Slider" },
-    { "GMod", "Weld (highlighted)", "highlight" },
+    { "GMod", "Weld", "highlight" },
     { "Custom", "Custom Tool 1" },
     { "Custom", "Custom Tool 2" },
     { "GMod", "Muscle" },
-    { "GMod", "Pulley (highlighted)", "highlight" },
-    { "Custom", "Custom Tool 3 (highlighted)", "highlight" },
+    { "GMod", "Pulley", "highlight" },
+    { "Custom", "Custom Tool 3", "highlight" },
     { "GMod", "Rope" },
     { "Custom", "Custom Tool 4" },
     { "Custom", "Custom Tool 5" },
     { "Custom", "Custom Tool 6" },
     { "Custom", "Custom Tool 7" },
-    { "Custom", "Custom Tool 8 (highlighted)", "highlight" },
+    { "Custom", "Custom Tool 8", "highlight" },
     { "Custom", "Custom Tool 9" }
 }
 

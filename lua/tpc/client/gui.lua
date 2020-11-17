@@ -263,6 +263,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
 
     local function SimulateToolList(position, toolType, lineType, text, parent, highligthed)
         local posY = toolEntryHeight * position + extraDCollapsibleHeight
+        local textColor = lineType == "bright" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255)
 
         local toolEntry = vgui.Create("DPanel", parent)
             toolEntry:SetPos(0, posY)
@@ -277,13 +278,21 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             toolName:SetSize(toolEntryWidth, toolEntryHeight)
             toolName:SetPos(5, posY)
             toolName:SetText(text)
-            toolName:SetTextColor(lineType == "bright" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
+            toolName:SetTextColor(textColor)
+
+        if highligthed then
+            local tool = vgui.Create( "DLabel", parent)
+                tool:SetSize(10, 10)
+                tool:SetPos((toolEntryWidth/5) * 5 + 3, posY + 5)
+                tool:SetText("*")
+                tool:SetTextColor(textColor)
+        end
 
         local tool = vgui.Create( "DLabel", parent)
             tool:SetSize(toolEntryWidth/5, toolEntryHeight)
             tool:SetPos((toolEntryWidth/5) * 4 + 44, posY)
             tool:SetText(lineType == "bright" and "Bright" or "Dark")
-            tool:SetTextColor(lineType == "bright" and Color(119, 119, 119, 255) or Color(135, 135, 135, 255))
+            tool:SetTextColor(textColor)
     end
 
     local DCollapsible = vgui.Create("DCollapsibleCategory", fakeToolsListPanel)
@@ -344,4 +353,4 @@ function TPC:Test()
 
     self:CreateMenu(realWhiteBackground)
 end
---TPC:Test() -- Uncomment and save after the map loads
+TPC:Test() -- Uncomment and save after the map loads
