@@ -104,22 +104,38 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         previewColorsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
     local function SelectColorMixer(pressedButton, newMixer)
-        if not colorControlsPanel:IsVisible() then
-            colorControlsPanel:Show()
-        end
+        local oldMixer
+        local mixerHeight = 92
 
+        -- Get last mixer
         for toolType,tpnl in pairs(colorControls) do
             for lineType,lpnl in pairs(tpnl) do
-                if lpnl:IsVisible() then
-                    lpnl:Hide() -- Old mixer
+                if lpnl:GetTall() > 0 then
+                    oldMixer = lpnl -- Old mixer
                     previewColors[toolType][lineType].background:Hide() -- Last pressed button background
                     break
                 end
             end
         end
 
-        newMixer:Show()
-        pressedButton.background:Show()
+        -- Show back panel if any mixer is selected
+        if not oldMixer and newMixer:GetParent():GetTall() == 0 then
+            newMixer:GetParent():SizeTo(newMixer:GetWide(), mixerHeight, 0.2, 0, -1)
+        end
+
+        -- Hide old mixer and show new mixer
+        if oldMixer then
+            oldMixer:SizeTo(oldMixer:GetWide(), 0, 0.2, 0, -1)
+        end
+        if not oldMixer or oldMixer ~= newMixer then
+            newMixer:SizeTo(newMixer:GetWide(), mixerHeight, 0.2, 0, -1)
+            pressedButton.background:Show()
+        end
+
+        -- Hide back panel if no mixer is selected
+        if oldMixer == newMixer then
+            newMixer:GetParent():SizeTo(newMixer:GetWide(), 0, 0.2, 0, -1)
+        end
     end
 
     local sectionTableWidth = 162
@@ -218,17 +234,14 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     -- ---------------------
     -- Color mixer
     -- ---------------------
-    local colorMixerHeight = 92
     colorControlsPanel = vgui.Create("DPanel", CPanel)
         colorControlsPanel:Dock(TOP)
-        colorControlsPanel:SetTall(colorMixerHeight)
+        colorControlsPanel:SetTall(0)
         colorControlsPanel:DockMargin(10, 10, 10, 0)
         colorControlsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
-        colorControlsPanel:Hide()
 
     local function SetColorMixer(toolType, lineType)
         colorControls[toolType][lineType] = vgui.Create("DColorMixer", colorControlsPanel)
-            colorControls[toolType][lineType]:SetSize(200, colorMixerHeight)
             colorControls[toolType][lineType]:SetPalette(false)
             colorControls[toolType][lineType]:SetAlphaBar(true)
             colorControls[toolType][lineType]:SetWangs(true)
@@ -237,7 +250,8 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             colorControls[toolType][lineType]:SetConVarB("tpc_" .. toolType .. "_" .. lineType .. "_b")
             colorControls[toolType][lineType]:SetConVarA("tpc_" .. toolType .. "_" .. lineType .. "_a")
             colorControls[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
-            colorControls[toolType][lineType]:Hide()
+            colorControls[toolType][lineType]:SizeToChildren(false, true)
+            colorControls[toolType][lineType]:SetSize(200, 0)
             colorControls[toolType][lineType].ValueChanged = function(self, colorTable)
                 -- Note: SetConVar"RGBA" is applying past values instead of current ones, so I'm doing a convar refresh here
                 TPC:SetToolColors(toolType, lineType, colorTable)
