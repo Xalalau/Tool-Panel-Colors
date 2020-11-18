@@ -1,9 +1,10 @@
+- Rename "Custom" to "Addon"
 - Add proper multiplayer support:
 	-- Apply the current colors on all players (server/admin)
 	-- Use custom client colors over the server selection (client)
-- Add highlight color
-- Support colors per dcategory
+
+Maybe:
+- Support colors per dcategory (TPC[category].colors)
 - Add tool right side images support
 - Add tool reorganizer
-- Rename to Ultimate Tool Panel Customizer
-- Center color selector legend elements
+- Rename to Tool Panel Customizer
