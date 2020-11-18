@@ -5,7 +5,7 @@
 
 TPC.version = "Pre 1.0"
 
-TPC.defaultPreset = "Menta"
+TPC.defaultPreset = "Saara"
 
 TPC.colors = {
     GMod = {
