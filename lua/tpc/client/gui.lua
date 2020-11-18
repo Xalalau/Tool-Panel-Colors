@@ -12,7 +12,7 @@ function TPC:InitGui()
             if pnl.ClassName == "DCategoryHeader" then
                 dark = true
             else
-                local toolType = self.defaultTools[pnl.Name] and "GMod" or "Custom"
+                local toolType = self.defaultTools[pnl.Name] and "GMod" or "Addon"
                 local lineType = dark and "dark" or "bright"
 
                 self:SetPaint(pnl, toolType, lineType, true)
@@ -93,7 +93,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     -- Menu selectors
     -- ---------------------
 
-    -- GMod tools / Custom tools
+    -- GMod / Addon tools
     local sectionHeaderHeight = 20
     local previewHeight = 28
 
@@ -221,10 +221,10 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     local position = 0
     local headerMarginLeft = {
         ["GMod"] = 14,
-        ["Custom"] = 12,
+        ["Addon"] = 12,
         ["Highlight"] = 7
     }
-    for _,toolType in ipairs({ "GMod", "Custom", "Highlight" }) do
+    for _,toolType in ipairs({ "GMod", "Addon", "Highlight" }) do
         for _,lineType in ipairs({ "dark", "bright", "font" }) do
             SetColorButton(toolType, lineType, position, headerMarginLeft[toolType])
             position = position + 1
