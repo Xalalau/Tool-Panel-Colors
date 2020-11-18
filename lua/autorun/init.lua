@@ -47,22 +47,24 @@ end
 includeModules(TPC.FOLDER.CL_MODULES, true)
 
 if CLIENT then
-    local firstRun = CreateClientConVar("tpc_first_run", "1")
-
-    TPC:InitHighlights()
-
-    if firstRun:GetInt() == 1 then
-        TPC:InitColorsFirstRun()
-
+    local function InitColors()
         local name = "tpc" .. tostring(LocalPlayer())
 
         hook.Add("OnSpawnMenuOpen", name, function()
-            TPC:InitColors()
+            timer.Simple(0.2, function()
+                TPC:InitColors()
+            end)
             hook.Remove(name)
         end)
-
-        RunConsoleCommand("tpc_first_run", "0")
-    else
-        TPC:InitColors()
     end
+
+    local firstRun = CreateClientConVar("tpc_first_run", "1")
+
+    if firstRun:GetInt() == 1 then
+        TPC:InitColorsFirstRun()
+        RunConsoleCommand("tpc_first_run", "0")
+    end
+
+    TPC:InitHighlights()
+    InitColors()
 end

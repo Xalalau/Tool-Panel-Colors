@@ -95,14 +95,6 @@ function TPC:InitColors()
             self.colors[toolType][lineType] = self:TableToColor(GetCurrentColors(toolType, lineType))
         end
 
-        if g_SpawnMenu then
-            self:SetFontColor(toolType)
-        else
-            hook.Add("OnSpawnMenuOpen", "SpawnMenuNotReady", function()
-                self:SetFontColor(toolType)
-
-                hook.Remove("OnSpawnMenuOpen", "SpawnMenuNotReady")
-            end)
-        end
+        self:SetFontColor(toolType)
     end
 end

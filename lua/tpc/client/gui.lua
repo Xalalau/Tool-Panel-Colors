@@ -25,11 +25,16 @@ end
 
 function TPC:SetPaint(pnl, toolType, lineType, setRightClick, startHighlighted)
     local highlight = startHighlighted or TPC.highlights[pnl.Name]
+    local color
 
     pnl._Paint = pnl._Paint or pnl.Paint
 
     function pnl:Paint(w, h)
-        surface.SetDrawColor(TPC.colors[highlight and "Highlight" or toolType][lineType])
+        color = TPC.colors[highlight and "Highlight" or toolType][lineType]
+
+        if color == true then return self:_Paint(w, h) end
+
+        surface.SetDrawColor(color)
         surface.DrawRect(0, 0, w, h)
 
         return self:_Paint(w, h)
@@ -73,7 +78,7 @@ local function AddPresets(CPanel, previewColors)
                 for toolType,tpnl in pairs(previewColors) do
                     for lineType,lpnl in pairs(tpnl) do
                         lpnl:SetColor(TPC.colors[toolType][lineType])
-                        TPC:SetFakeToolFontColor(toolType, lineType)
+                        TPC:SetFakeToolFontColor(lineType)
                     end
                 end
             end)
@@ -236,7 +241,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             colorControls[toolType][lineType].ValueChanged = function(self, colorTable)
                 -- Note: SetConVar"RGBA" is applying past values instead of current ones, so I'm doing a convar refresh here
                 TPC:SetToolColors(toolType, lineType, colorTable)
-                TPC:SetFakeToolFontColor(toolType, lineType)
+                TPC:SetFakeToolFontColor(lineType)
                 previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             end
     end
@@ -308,7 +313,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     end
 end
 
-function TPC:SetFakeToolFontColor(toolTypeIn, lineTypeIn)
+function TPC:SetFakeToolFontColor(lineTypeIn)
     if lineTypeIn == "font" then
         for toolType,typeTable in pairs(self.fakeToolPanelList) do
             for lineType,panelTable in pairs(typeTable) do
@@ -332,6 +337,7 @@ function TPC:CreateMenu(CPanel)
 
     AddPresets(CPanel, previewColors)
     AddColorSelector(CPanel, colorControls, previewColors)
+    self:SetFakeToolFontColor("font")
 
     if CPanel.Help then -- If testing
         CPanel:Help("")
