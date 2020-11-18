@@ -43,6 +43,7 @@ function TPC:SetPaint(pnl, toolType, lineType, setRightClick, startHighlighted)
 
             TPC:SetHighlight(pnl.Name, highlight)
             TPC:SaveHighlights()
+            TPC:SetFontColor(highlight and "Highlight" or toolType)
 
             return self:_DoRightClick()
         end
@@ -72,6 +73,7 @@ local function AddPresets(CPanel, previewColors)
                 for toolType,tpnl in pairs(previewColors) do
                     for lineType,lpnl in pairs(tpnl) do
                         lpnl:SetColor(TPC.colors[toolType][lineType])
+                        TPC:SetFakeToolFontColor(toolType, lineType)
                     end
                 end
             end)
@@ -136,14 +138,8 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         column3:SetText("Font")
         column3:SetTextColor(color_black)
 
-    local sectionXInfo = {
-        { left = 14, name = "GMod" },
-        { left = 12, name = "Addon" },
-        { left = 7, name = "Highlihgt" }
-    }
-
-    local function SetColorButton(toolType, lineType, positionY)
-        local maxMixersPerSection = 2
+    local function SetColorButton(toolType, lineType, positionY, headerMarginLeft)
+        local maxMixersPerSection = 3
 
         local columnParts = 3
         local columnSize = sectionTableWidth / 3
@@ -167,8 +163,8 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
 
             local section = vgui.Create( "DLabel", previewColorsPanel)
                 section:SetSize(columnSize, sectionHeaderHeight)
-                section:SetPos(positionX + sectionXInfo[sectionXIndex].left, 0)
-                section:SetText(sectionXInfo[sectionXIndex].name)
+                section:SetPos(positionX + headerMarginLeft, 0)
+                section:SetText(toolType)
                 section:SetTextColor(sectionXIndex % 2 == 1 and Color(0, 0, 0, 200) or color_white)
         end
 
@@ -201,12 +197,18 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             end
     end
 
-    SetColorButton("GMod", "dark", 0)
-    SetColorButton("GMod", "bright", 1)
-    SetColorButton("Custom", "dark", 2)
-    SetColorButton("Custom", "bright", 3)
-    SetColorButton("Highlight", "dark", 4)
-    SetColorButton("Highlight", "bright", 5)
+    local position = 0
+    local headerMarginLeft = {
+        ["GMod"] = 14,
+        ["Custom"] = 12,
+        ["Highlight"] = 7
+    }
+    for _,toolType in ipairs({ "GMod", "Custom", "Highlight" }) do
+        for _,lineType in ipairs({ "dark", "bright", "font" }) do
+            SetColorButton(toolType, lineType, position, headerMarginLeft[toolType])
+            position = position + 1
+        end
+    end
 
     -- ---------------------
     -- Color mixer
@@ -234,17 +236,14 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             colorControls[toolType][lineType].ValueChanged = function(self, colorTable)
                 -- Note: SetConVar"RGBA" is applying past values instead of current ones, so I'm doing a convar refresh here
                 TPC:SetToolColors(toolType, lineType, colorTable)
+                TPC:SetFakeToolFontColor(toolType, lineType)
                 previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
             end
     end
 
     for toolType,typeTable in pairs(colorControls) do
-        if istable(typeTable) then
-            for lineType,_ in pairs(typeTable) do
-                SetColorMixer(toolType, lineType)
-            end
-        else
-            SetColorMixer(toolType, 1)
+        for lineType,_ in pairs(typeTable) do
+            SetColorMixer(toolType, lineType)
         end
     end
 
@@ -255,11 +254,11 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     local toolEntryWidth = 162
     local toolEntryHeight = 17
     local extraDCollapsibleHeight = 3
-    local fakeToolsListPanel = vgui.Create("DPanel", CPanel)
-        fakeToolsListPanel:Dock(TOP)
-        fakeToolsListPanel:SetTall(#TPC.fakeToolsList * (toolEntryHeight + 1) + extraDCollapsibleHeight * 2)
-        fakeToolsListPanel:DockMargin(10, 10, 10, 0)
-        fakeToolsListPanel:SetBackgroundColor(Color(0, 0, 0, 0))
+    local fakeToolsPanelList = vgui.Create("DPanel", CPanel)
+        fakeToolsPanelList:Dock(TOP)
+        fakeToolsPanelList:SetTall(#TPC.fakeToolList * (toolEntryHeight + 1) + extraDCollapsibleHeight * 2)
+        fakeToolsPanelList:DockMargin(10, 10, 10, 0)
+        fakeToolsPanelList:SetBackgroundColor(Color(0, 0, 0, 0))
 
     local function SimulateToolList(position, toolType, lineType, text, parent, highligthed)
         local posY = toolEntryHeight * position + extraDCollapsibleHeight
@@ -280,6 +279,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             toolName:SetPos(5, posY)
             toolName:SetText(text)
             toolName:SetTextColor(textColor)
+            table.insert(TPC.fakeToolPanelList[toolType][lineType], toolName)
 
         if highligthed then
             local tool = vgui.Create( "DLabel", parent)
@@ -296,15 +296,29 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             tool:SetTextColor(textColor)
     end
 
-    local DCollapsible = vgui.Create("DCollapsibleCategory", fakeToolsListPanel)
+    local DCollapsible = vgui.Create("DCollapsibleCategory", fakeToolsPanelList)
         DCollapsible:SetLabel("Click on the tools")
         DCollapsible:SetWide(toolEntryWidth)
         DCollapsible:SetExpanded(true)
 
-    for k,v in ipairs(TPC.fakeToolsList) do
+    for k,v in ipairs(TPC.fakeToolList) do
         local lineType = k % 2 == 0 and "bright" or "dark"
 
-        SimulateToolList(k, v[1], lineType, v[2], fakeToolsListPanel, v[3] and true)
+        SimulateToolList(k, v[1], lineType, v[2], fakeToolsPanelList, v[3] and true)
+    end
+end
+
+function TPC:SetFakeToolFontColor(toolTypeIn, lineTypeIn)
+    if lineTypeIn == "font" then
+        for toolType,typeTable in pairs(self.fakeToolPanelList) do
+            for lineType,panelTable in pairs(typeTable) do
+                if lineType ~= "font" then
+                    for _,panel in pairs(panelTable) do
+                        panel:SetTextColor(TPC.colors[toolType]["font"])
+                    end
+                end
+            end
+        end
     end
 end
 

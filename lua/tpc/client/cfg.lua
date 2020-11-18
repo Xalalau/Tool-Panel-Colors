@@ -8,22 +8,63 @@ TPC.version = "Pre 1.0"
 TPC.defaultPreset = "Menta"
 
 TPC.colors = {
-    GMod = { 
+    GMod = {
         bright = true,
-        dark = true
+        dark = true,
+        font = true
     },
     Custom = {
         bright = true,
-        dark = true
+        dark = true,
+        font = true
     },
     Highlight = {
         bright = true,
-        dark = true
+        dark = true,
+        font = true
     }
 }
 
 -- ["panel"] = true
 TPC.highlights = {}
+
+TPC.fakeToolPanelList = {
+    GMod = {
+        dark = {},
+        bright = {}
+    },
+    Custom = {
+        dark = {},
+        bright = {}
+    },
+    Highlight = {
+        dark = {},
+        bright = {}
+    }
+}
+
+-- { "toolType", "toolName", "highlight" or nil }
+TPC.fakeToolList = {
+    { "GMod", "Axis" },
+    { "GMod", "Ball Socket" },
+    { "GMod", "Elastic" },
+    { "GMod", "Hydraulic" },
+    { "GMod", "Motor" },
+    { "GMod", "Slider" },
+    { "GMod", "Weld", "highlight" },
+    { "Custom", "Custom Tool 1" },
+    { "Custom", "Custom Tool 2" },
+    { "GMod", "Muscle" },
+    { "GMod", "Pulley", "highlight" },
+    { "Custom", "Custom Tool 3", "highlight" },
+    { "GMod", "Rope" },
+    { "Custom", "Custom Tool 4" },
+    { "Custom", "Custom Tool 5" },
+    { "Custom", "Custom Tool 6" },
+    { "Custom", "Custom Tool 7" },
+    { "Custom", "Custom Tool 8", "highlight" },
+    { "Custom", "Custom Tool 9" }
+}
 
 TPC.defaultTools = {
     ["axis"] = true,
@@ -61,29 +102,6 @@ TPC.defaultTools = {
     ["trails"] = true
 }
 
--- { "toolType", "toolName", "highlight" or nil }
-TPC.fakeToolsList = {
-    { "GMod", "Axis" },
-    { "GMod", "Ball Socket" },
-    { "GMod", "Elastic" },
-    { "GMod", "Hydraulic" },
-    { "GMod", "Motor" },
-    { "GMod", "Slider" },
-    { "GMod", "Weld", "highlight" },
-    { "Custom", "Custom Tool 1" },
-    { "Custom", "Custom Tool 2" },
-    { "GMod", "Muscle" },
-    { "GMod", "Pulley", "highlight" },
-    { "Custom", "Custom Tool 3", "highlight" },
-    { "GMod", "Rope" },
-    { "Custom", "Custom Tool 4" },
-    { "Custom", "Custom Tool 5" },
-    { "Custom", "Custom Tool 6" },
-    { "Custom", "Custom Tool 7" },
-    { "Custom", "Custom Tool 8", "highlight" },
-    { "Custom", "Custom Tool 9" }
-}
-
 TPC.presets = {
     ["[Default]"] = {
         tpc_gmod_bright_r = "255",
@@ -94,6 +112,10 @@ TPC.presets = {
         tpc_gmod_dark_g = "255",
         tpc_gmod_dark_b = "255",
         tpc_gmod_dark_a = "255",
+        tpc_gmod_font_r = "135",
+        tpc_gmod_font_g = "135",
+        tpc_gmod_font_b = "135",
+        tpc_gmod_font_a = "255",
         tpc_custom_bright_r = "255",
         tpc_custom_bright_g = "255",
         tpc_custom_bright_b = "255",
@@ -102,6 +124,10 @@ TPC.presets = {
         tpc_custom_dark_g = "255",
         tpc_custom_dark_b = "255",
         tpc_custom_dark_a = "255",
+        tpc_custom_font_r = "135",
+        tpc_custom_font_g = "135",
+        tpc_custom_font_b = "135",
+        tpc_custom_font_a = "255",
         tpc_highlight_dark_r = "255",
         tpc_highlight_dark_g = "255",
         tpc_highlight_dark_b = "255",
@@ -109,7 +135,11 @@ TPC.presets = {
         tpc_highlight_bright_r = "255",
         tpc_highlight_bright_g = "255",
         tpc_highlight_bright_b = "255",
-        tpc_highlight_bright_a = "255"
+        tpc_highlight_bright_a = "255",
+        tpc_highlight_font_r = "227",
+        tpc_highlight_font_g = "0",
+        tpc_highlight_font_b = "0",
+        tpc_highlight_font_a = "255"
     },
     ["Tutti Frutti"] = {
         tpc_gmod_bright_r = "255",
@@ -120,6 +150,10 @@ TPC.presets = {
         tpc_gmod_dark_g = "255",
         tpc_gmod_dark_b = "255",
         tpc_gmod_dark_a = "255",
+        tpc_gmod_font_r = "135",
+        tpc_gmod_font_g = "135",
+        tpc_gmod_font_b = "135",
+        tpc_gmod_font_a = "255",
         tpc_custom_bright_r = "160",
         tpc_custom_bright_g = "97",
         tpc_custom_bright_b = "255",
@@ -128,6 +162,10 @@ TPC.presets = {
         tpc_custom_dark_g = "116",
         tpc_custom_dark_b = "255",
         tpc_custom_dark_a = "85",
+        tpc_custom_font_r = "135",
+        tpc_custom_font_g = "135",
+        tpc_custom_font_b = "135",
+        tpc_custom_font_a = "255",
         tpc_highlight_dark_r = "250",
         tpc_highlight_dark_g = "157",
         tpc_highlight_dark_b = "255",
@@ -135,7 +173,11 @@ TPC.presets = {
         tpc_highlight_bright_r = "250",
         tpc_highlight_bright_g = "157",
         tpc_highlight_bright_b = "255",
-        tpc_highlight_bright_a = "255"
+        tpc_highlight_bright_a = "255",
+        tpc_highlight_font_r = "147",
+        tpc_highlight_font_g = "42",
+        tpc_highlight_font_b = "166",
+        tpc_highlight_font_a = "255"
     },
     ["Saara"] = {
         tpc_gmod_bright_r = "255",
@@ -146,6 +188,10 @@ TPC.presets = {
         tpc_gmod_dark_g = "255",
         tpc_gmod_dark_b = "255",
         tpc_gmod_dark_a = "255",
+        tpc_gmod_font_r = "135",
+        tpc_gmod_font_g = "135",
+        tpc_gmod_font_b = "135",
+        tpc_gmod_font_a = "255",
         tpc_custom_bright_r = "255",
         tpc_custom_bright_g = "255",
         tpc_custom_bright_b = "100",
@@ -154,6 +200,10 @@ TPC.presets = {
         tpc_custom_dark_g = "255",
         tpc_custom_dark_b = "100",
         tpc_custom_dark_a = "63",
+        tpc_custom_font_r = "135",
+        tpc_custom_font_g = "135",
+        tpc_custom_font_b = "135",
+        tpc_custom_font_a = "255",
         tpc_highlight_dark_r = "255",
         tpc_highlight_dark_g = "255",
         tpc_highlight_dark_b = "62",
@@ -161,7 +211,11 @@ TPC.presets = {
         tpc_highlight_bright_r = "255",
         tpc_highlight_bright_g = "255",
         tpc_highlight_bright_b = "62",
-        tpc_highlight_bright_a = "255"
+        tpc_highlight_bright_a = "255",
+        tpc_highlight_font_r = "127",
+        tpc_highlight_font_g = "127",
+        tpc_highlight_font_b = "17",
+        tpc_highlight_font_a = "255"
     },
     ["Menta"] = {
         tpc_gmod_bright_r = "255",
@@ -172,6 +226,10 @@ TPC.presets = {
         tpc_gmod_dark_g = "255",
         tpc_gmod_dark_b = "255",
         tpc_gmod_dark_a = "255",
+        tpc_gmod_font_r = "135",
+        tpc_gmod_font_g = "135",
+        tpc_gmod_font_b = "135",
+        tpc_gmod_font_a = "255",
         tpc_custom_bright_r = "99",
         tpc_custom_bright_g = "255",
         tpc_custom_bright_b = "130",
@@ -180,6 +238,10 @@ TPC.presets = {
         tpc_custom_dark_g = "255",
         tpc_custom_dark_b = "130",
         tpc_custom_dark_a = "70",
+        tpc_custom_font_r = "135",
+        tpc_custom_font_g = "135",
+        tpc_custom_font_b = "135",
+        tpc_custom_font_a = "255",
         tpc_highlight_dark_r = "0",
         tpc_highlight_dark_g = "255",
         tpc_highlight_dark_b = "110",
@@ -187,7 +249,11 @@ TPC.presets = {
         tpc_highlight_bright_r = "0",
         tpc_highlight_bright_g = "255",
         tpc_highlight_bright_b = "110",
-        tpc_highlight_bright_a = "255"
+        tpc_highlight_bright_a = "255",
+        tpc_highlight_font_r = "0",
+        tpc_highlight_font_g = "121",
+        tpc_highlight_font_b = "36",
+        tpc_highlight_font_a = "255"
     },
     ["BSDO"] = {
         tpc_gmod_bright_r = "255",
@@ -198,6 +264,10 @@ TPC.presets = {
         tpc_gmod_dark_g = "255",
         tpc_gmod_dark_b = "255",
         tpc_gmod_dark_a = "255",
+        tpc_gmod_font_r = "135",
+        tpc_gmod_font_g = "135",
+        tpc_gmod_font_b = "135",
+        tpc_gmod_font_a = "255",
         tpc_custom_bright_r = "96",
         tpc_custom_bright_g = "228",
         tpc_custom_bright_b = "255",
@@ -206,6 +276,10 @@ TPC.presets = {
         tpc_custom_dark_g = "208",
         tpc_custom_dark_b = "255",
         tpc_custom_dark_a = "85",
+        tpc_custom_font_r = "135",
+        tpc_custom_font_g = "135",
+        tpc_custom_font_b = "135",
+        tpc_custom_font_a = "255",
         tpc_highlight_dark_r = "65",
         tpc_highlight_dark_g = "198",
         tpc_highlight_dark_b = "255",
@@ -213,7 +287,11 @@ TPC.presets = {
         tpc_highlight_bright_r = "65",
         tpc_highlight_bright_g = "198",
         tpc_highlight_bright_b = "255",
-        tpc_highlight_bright_a = "180"
+        tpc_highlight_bright_a = "180",
+        tpc_highlight_font_r = "18",
+        tpc_highlight_font_g = "114",
+        tpc_highlight_font_b = "74",
+        tpc_highlight_font_a = "255"
     },
     ["Wine"] = {
         tpc_gmod_bright_r = "255",
@@ -224,6 +302,10 @@ TPC.presets = {
         tpc_gmod_dark_g = "255",
         tpc_gmod_dark_b = "255",
         tpc_gmod_dark_a = "255",
+        tpc_gmod_font_r = "135",
+        tpc_gmod_font_g = "135",
+        tpc_gmod_font_b = "135",
+        tpc_gmod_font_a = "255",
         tpc_custom_bright_r = "255",
         tpc_custom_bright_g = "0",
         tpc_custom_bright_b = "0",
@@ -232,13 +314,21 @@ TPC.presets = {
         tpc_custom_dark_g = "0",
         tpc_custom_dark_b = "0",
         tpc_custom_dark_a = "44",
+        tpc_custom_font_r = "135",
+        tpc_custom_font_g = "135",
+        tpc_custom_font_b = "135",
+        tpc_custom_font_a = "255",
         tpc_highlight_dark_r = "255",
         tpc_highlight_dark_g = "136",
         tpc_highlight_dark_b = "136",
         tpc_highlight_dark_a = "255",
         tpc_highlight_bright_r = "255",
-        tpc_highlight_bright_g = "136",
-        tpc_highlight_bright_b = "136",
-        tpc_highlight_bright_a = "255"
+        tpc_highlight_bright_g = "145",
+        tpc_highlight_bright_b = "145",
+        tpc_highlight_bright_a = "255",
+        tpc_highlight_font_r = "138",
+        tpc_highlight_font_g = "64",
+        tpc_highlight_font_b = "64",
+        tpc_highlight_font_a = "255"
     }
 }
