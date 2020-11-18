@@ -1,4 +1,6 @@
 - Rename "Custom" to "Addon"
+- Font colors are not loading properly when the game starts
+- Close a color mixer when a the selected menu is selected again
 - Add proper multiplayer support:
 	-- Apply the current colors on all players (server/admin)
 	-- Use custom client colors over the server selection (client)
