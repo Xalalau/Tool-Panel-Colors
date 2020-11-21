@@ -3,18 +3,24 @@
     https://xalalau.com/
 --]]
 
-function TPC:InitHighlights()
-    if file.Exists(TPC.FILE.HIGHLIGHTS, "Data") then
-        TPC.highlights = util.JSONToTable(file.Read(TPC.FILE.HIGHLIGHTS, "Data"))
+function TPC:InitHighlights(scope)
+    local fileName = TPC.FILE.HIGHLIGHTS .. scope .. ".json"
+
+    if file.Exists(fileName, "Data") then
+        TPC.highlights[scope] = util.JSONToTable(file.Read(fileName, "Data"))
     end
 end
 
-function TPC:SaveHighlights()
-    file.Write(TPC.FILE.HIGHLIGHTS, util.TableToJSON(TPC.highlights, true))
+function TPC:SaveHighlights(scope)
+    file.Write(TPC.FILE.HIGHLIGHTS .. scope .. ".json", util.TableToJSON(TPC.highlights[scope], true))
 end
 
-function TPC:SetHighlight(pnlName, state)
+function TPC:SetHighlight(scope, pnlName, state)
     surface.PlaySound("garrysmod/content_downloaded.wav")
 
-    TPC.highlights[pnlName] = state
+    TPC.highlights[scope][pnlName] = state
 end
+
+net.Receive("TPC_SetSVHighlightsOnCL", function()
+    TPC.highlights["_sv"] = net.ReadTable()
+end)

@@ -3,6 +3,17 @@
     https://xalalau.com/
 --]]
 
+net.Receive("TPC_RefreshPanelColorsOnCL", function()
+    TPC:RefreshPanelColors("_sv")
+end)
+
+local CLPanelsToHideOnMultiplayer = {
+    ["_cl"] = {},
+    ["_sv"] = {}
+}
+
+local adminButtons = {}
+
 function TPC:InitGui()
     local toolPanelList = g_SpawnMenu.ToolMenu.ToolPanels[1].List
     local dark = true
@@ -15,7 +26,7 @@ function TPC:InitGui()
                 local toolType = self.defaultTools[pnl.Name] and "GMod" or "Addon"
                 local lineType = dark and "dark" or "bright"
 
-                self:SetPaint(pnl, toolType, lineType, true)
+                self:SetPaint(pnl, toolType, lineType, nil, true)
 
                 dark = not dark and true or false
             end
@@ -23,14 +34,13 @@ function TPC:InitGui()
     end
 end
 
-function TPC:SetPaint(pnl, toolType, lineType, setRightClick, startHighlighted)
-    local highlight = startHighlighted or TPC.highlights[pnl.Name]
-    local color
-
+function TPC:SetPaint(pnl, toolType, lineType, colorTable, setRightClick, startHighlighted)
+    colorTable = colorTable
     pnl._Paint = pnl._Paint or pnl.Paint
 
     function pnl:Paint(w, h)
-        color = TPC.colors[highlight and "Highlight" or toolType][lineType]
+        local color = colorTable or TPC.colors[TPC:GetActiveColors()]
+        color = color[TPC.highlights[TPC:GetActiveColors()][pnl.Name] and "Highlight" or toolType][lineType]
 
         if color == true then return self:_Paint(w, h) end
 
@@ -44,19 +54,136 @@ function TPC:SetPaint(pnl, toolType, lineType, setRightClick, startHighlighted)
         pnl._DoRightClick = pnl._DoRightClick or pnl.DoRightClick
 
         function pnl:DoRightClick()
-            highlight = not highlight and true or false
+            if TPC:GetActiveColors() == "_sv" and not LocalPlayer():IsAdmin() then return end
 
-            TPC:SetHighlight(pnl.Name, highlight)
-            TPC:SaveHighlights()
-            TPC:SetFontColor(highlight and "Highlight" or toolType)
+            TPC.highlights[TPC:GetActiveColors()][pnl.Name] = not TPC.highlights[TPC:GetActiveColors()][pnl.Name] and true or false
+
+            TPC:SetHighlight(TPC:GetActiveColors(), pnl.Name, TPC.highlights[TPC:GetActiveColors()][pnl.Name])
+            TPC:SaveHighlights(TPC:GetActiveColors())
+            TPC:SetFontColor(TPC:GetActiveColors(), TPC.highlights[TPC:GetActiveColors()][pnl.Name] and "Highlight" or toolType)
+
+            SetAdmButtonsEnabled(true)
 
             return self:_DoRightClick()
         end
     end
 end
 
-local function AddPresets(CPanel, previewColors)
+local previewColorsAux -- Ugly solution, I need to change this panel here
+function TPC:RefreshPanelColors(scope)
+    timer.Simple(0.1, function() -- Wait for RunConsoleCommand before init the colors
+        TPC:InitColors(scope)
+
+        if previewColorsAux and previewColorsAux[scope] then
+            for toolType,tpnl in pairs(previewColorsAux[scope]) do
+                for lineType,lpnl in pairs(tpnl) do
+                    if lpnl and IsValid(lpnl) then
+                        lpnl:SetColor(TPC.colors[scope][toolType][lineType])
+                    end
+                    TPC:SetFakeToolFontColor(scope, lineType)
+                end
+            end
+        end
+    end)
+end
+
+function SetPanelsVisibility(val)
+    for _,pnlTable in pairs(CLPanelsToHideOnMultiplayer) do
+        for _,pnl in pairs(pnlTable) do
+            if not val then
+                pnl:Show()
+            else
+                pnl:Hide()
+            end
+        end
+
+        val = not val
+    end
+end
+
+function AddScopeCheckbox(CPanel)
+    local checkboxPanel = vgui.Create("DPanel", CPanel)
+        checkboxPanel:Dock(TOP)
+        checkboxPanel:SetBackgroundColor(Color(0, 0, 0, 0))
+        checkboxPanel:SizeToContents()
+
+    local checkbox = vgui.Create("DCheckBoxLabel", checkboxPanel)
+        checkbox:SetPos(10, 9)
+        checkbox:SetText("Use server color scheme")
+        checkbox:SetValue(TPC:AreSVColorsEnabled())
+        checkbox:SetTextColor(color_black)
+        function checkbox:OnChange(val)
+            RunConsoleCommand("tpc_use_sv_colors", val and "1" or "0")
+            SetPanelsVisibility(val)
+
+            timer.Simple(0.1, function()
+                local scope = TPC.GetActiveColors()
+
+                TPC:InitHighlights(scope)
+                TPC:InitColors(scope)                    
+            end)
+        end
+end
+
+function SetAdmButtonsEnabled(val)
+    if adminButtons[1] then
+        if val and not adminButtons[1]:IsEnabled() then
+            adminButtons[1]:SetEnabled(true)
+            adminButtons[2]:SetEnabled(true)
+        elseif not val then
+            adminButtons[1]:SetEnabled(false)
+            adminButtons[2]:SetEnabled(false)
+        end
+    end
+end
+
+function AddAdmButtons(CPanel, previewColors, scope)
+    local adminButtonsPanel = vgui.Create("DPanel", CPanel)
+        table.insert(CLPanelsToHideOnMultiplayer[scope], adminButtonsPanel)
+        adminButtonsPanel:Dock(TOP)
+        adminButtonsPanel:DockMargin(10, 10, 10, 0)
+        adminButtonsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
+        adminButtonsPanel:SizeToContents()
+
+    local applyButton = vgui.Create("DButton", adminButtonsPanel)
+        adminButtons[1] = applyButton
+        applyButton:SetText("Apply to server")
+        applyButton:SetSize(140, 24)
+        applyButton:SetEnabled(false)
+        applyButton.DoClick = function()
+            net.Start("TPC_SetNewSchemeOnSV")
+            PrintTable(TPC.highlights["_sv"])
+                net.WriteTable(TPC:GetCurrentColorCvars("_sv"))
+                net.WriteTable(TPC.highlights["_sv"])
+            net.SendToServer()
+
+            timer.Simple(0.1, function()
+                SetAdmButtonsEnabled(false)
+            end)
+        end
+
+    local clearButton = vgui.Create("DButton", adminButtonsPanel)
+        adminButtons[2] = clearButton
+        clearButton:SetText("Clear")
+        clearButton:SetPos(150, 0)
+        clearButton:SetEnabled(false)
+        clearButton:SetSize(50, 24)
+        clearButton.DoClick = function()
+            for k,v in pairs(TPC.serverPreset) do
+                RunConsoleCommand(k, v)
+            end
+
+            TPC:RefreshPanelColors("_sv")
+
+            timer.Simple(0.1, function()
+                SetAdmButtonsEnabled(false)
+            end)
+        end
+end
+
+local function AddPresets(CPanel, previewColors, scope)
     local presets = vgui.Create("ControlPresets", CPanel)
+        table.insert(CLPanelsToHideOnMultiplayer[scope], presets)
         presets:Dock(TOP)
         presets:DockMargin(10, 10, 10, 0)
         presets:SetPreset(TPC.FOLDER.DATA)
@@ -64,28 +191,22 @@ local function AddPresets(CPanel, previewColors)
             presets:AddOption(k, v)
 
             for cvar,_ in pairs(v) do
+                cvar = cvar:sub(1, -4) .. scope
+
                 presets:AddConVar(cvar)
             end
         end
         presets.OnSelect = function(self, index, text, data)
             for k,v in pairs(data) do
+                k = k:sub(1, -4) .. scope
                 RunConsoleCommand(k, v)
             end
 
-            timer.Simple(0.05, function() -- Wait the RunConsoleCommand before init the colors
-               TPC:InitColors()
-
-                for toolType,tpnl in pairs(previewColors) do
-                    for lineType,lpnl in pairs(tpnl) do
-                        lpnl:SetColor(TPC.colors[toolType][lineType])
-                        TPC:SetFakeToolFontColor(lineType)
-                    end
-                end
-            end)
+            TPC:RefreshPanelColors(scope)
         end
 end
 
-local function AddColorSelector(CPanel, colorControls, previewColors)
+local function AddColorSelector(CPanel, colorControls, previewColors, scope)
     local previewSize = 20
     local colorControlsPanel
 
@@ -98,6 +219,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     local previewHeight = 28
 
     local previewColorsPanel = vgui.Create("DPanel", CPanel)
+        table.insert(CLPanelsToHideOnMultiplayer[scope], previewColorsPanel)
         previewColorsPanel:Dock(TOP)
         previewColorsPanel:SetTall(previewHeight * 3 + sectionHeaderHeight)
         previewColorsPanel:DockMargin(10, 10, 10, 0)
@@ -108,11 +230,11 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
         local mixerHeight = 92
 
         -- Get last mixer
-        for toolType,tpnl in pairs(colorControls) do
+        for toolType,tpnl in pairs(colorControls[scope]) do
             for lineType,lpnl in pairs(tpnl) do
                 if lpnl:GetTall() > 0 then
                     oldMixer = lpnl -- Old mixer
-                    previewColors[toolType][lineType].background:Hide() -- Last pressed button background
+                    previewColors[scope][toolType][lineType].background:Hide() -- Last pressed button background
                     break
                 end
             end
@@ -197,15 +319,15 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             background:Hide()
 
         -- Applied color
-        previewColors[toolType][lineType] = vgui.Create("DColorButton", previewColorsPanel)
-            previewColors[toolType][lineType].background = background
-            previewColors[toolType][lineType]:SetPos(positionX + 4, sectionHeaderHeight + positionY * previewHeight + 2)
-            previewColors[toolType][lineType]:SetSize(columnSize - 8, previewHeight - 4)
-            previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
-            previewColors[toolType][lineType].DoClick = function(self)
-                SelectColorMixer(previewColors[toolType][lineType], colorControls[toolType][lineType])
+        previewColors[scope][toolType][lineType] = vgui.Create("DColorButton", previewColorsPanel)
+            previewColors[scope][toolType][lineType].background = background
+            previewColors[scope][toolType][lineType]:SetPos(positionX + 4, sectionHeaderHeight + positionY * previewHeight + 2)
+            previewColors[scope][toolType][lineType]:SetSize(columnSize - 8, previewHeight - 4)
+            previewColors[scope][toolType][lineType]:SetColor(TPC.colors[scope][toolType][lineType])
+            previewColors[scope][toolType][lineType].DoClick = function(self)
+                SelectColorMixer(previewColors[scope][toolType][lineType], colorControls[scope][toolType][lineType])
             end
-            local pnlAux = previewColors[toolType][lineType]
+            local pnlAux = previewColors[scope][toolType][lineType]
             pnlAux._Paint = pnlAux.Paint
             pnlAux.dark = lineType == "dark" and true
             function pnlAux:Paint(w, h)
@@ -235,32 +357,34 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     -- Color mixer
     -- ---------------------
     colorControlsPanel = vgui.Create("DPanel", CPanel)
+        table.insert(CLPanelsToHideOnMultiplayer[scope], colorControlsPanel)
         colorControlsPanel:Dock(TOP)
         colorControlsPanel:SetTall(0)
         colorControlsPanel:DockMargin(10, 10, 10, 0)
         colorControlsPanel:SetBackgroundColor(Color(0, 0, 0, 0))
 
     local function SetColorMixer(toolType, lineType)
-        colorControls[toolType][lineType] = vgui.Create("DColorMixer", colorControlsPanel)
-            colorControls[toolType][lineType]:SetPalette(false)
-            colorControls[toolType][lineType]:SetAlphaBar(true)
-            colorControls[toolType][lineType]:SetWangs(true)
-            colorControls[toolType][lineType]:SetConVarR("tpc_" .. toolType .. "_" .. lineType .. "_r")
-            colorControls[toolType][lineType]:SetConVarG("tpc_" .. toolType .. "_" .. lineType .. "_g")
-            colorControls[toolType][lineType]:SetConVarB("tpc_" .. toolType .. "_" .. lineType .. "_b")
-            colorControls[toolType][lineType]:SetConVarA("tpc_" .. toolType .. "_" .. lineType .. "_a")
-            colorControls[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
-            colorControls[toolType][lineType]:SizeToChildren(false, true)
-            colorControls[toolType][lineType]:SetSize(200, 0)
-            colorControls[toolType][lineType].ValueChanged = function(self, colorTable)
+        colorControls[scope][toolType][lineType] = vgui.Create("DColorMixer", colorControlsPanel)
+            colorControls[scope][toolType][lineType]:SetPalette(false)
+            colorControls[scope][toolType][lineType]:SetAlphaBar(true)
+            colorControls[scope][toolType][lineType]:SetWangs(true)
+            colorControls[scope][toolType][lineType]:SetConVarR("tpc_" .. toolType .. "_" .. lineType .. "_r" .. scope)
+            colorControls[scope][toolType][lineType]:SetConVarG("tpc_" .. toolType .. "_" .. lineType .. "_g" .. scope)
+            colorControls[scope][toolType][lineType]:SetConVarB("tpc_" .. toolType .. "_" .. lineType .. "_b" .. scope)
+            colorControls[scope][toolType][lineType]:SetConVarA("tpc_" .. toolType .. "_" .. lineType .. "_a" .. scope)
+            colorControls[scope][toolType][lineType]:SetColor(TPC.colors[scope][toolType][lineType])
+            colorControls[scope][toolType][lineType]:SizeToChildren(false, true)
+            colorControls[scope][toolType][lineType]:SetSize(200, 0)
+            colorControls[scope][toolType][lineType].ValueChanged = function(self, colorTable)
                 -- Note: SetConVar"RGBA" is applying past values instead of current ones, so I'm doing a convar refresh here
-                TPC:SetToolColors(toolType, lineType, colorTable)
-                TPC:SetFakeToolFontColor(lineType)
-                previewColors[toolType][lineType]:SetColor(TPC.colors[toolType][lineType])
+                TPC:SetToolColors(scope, toolType, lineType, colorTable)
+                TPC:SetFakeToolFontColor(scope, lineType)
+                SetAdmButtonsEnabled(true)
+                previewColors[scope][toolType][lineType]:SetColor(TPC.colors[scope][toolType][lineType])
             end
     end
 
-    for toolType,typeTable in pairs(colorControls) do
+    for toolType,typeTable in pairs(colorControls[scope]) do
         for lineType,_ in pairs(typeTable) do
             SetColorMixer(toolType, lineType)
         end
@@ -274,6 +398,7 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     local toolEntryHeight = 17
     local extraDCollapsibleHeight = 3
     local fakeToolsPanelList = vgui.Create("DPanel", CPanel)
+        table.insert(CLPanelsToHideOnMultiplayer[scope], fakeToolsPanelList)
         fakeToolsPanelList:Dock(TOP)
         fakeToolsPanelList:SetTall(#TPC.fakeToolList * (toolEntryHeight + 1) + extraDCollapsibleHeight * 2)
         fakeToolsPanelList:DockMargin(10, 10, 10, 0)
@@ -289,16 +414,16 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
             toolEntry:SetSize(toolEntryWidth, toolEntryHeight)
             toolEntry:SetBackgroundColor(lineType == "bright" and Color(0, 0, 0, 0) or Color(0, 0, 0, 27))
             toolEntry.OnMousePressed = function(...)
-                previewColors[toolType][lineType]:DoClick(...)
+                previewColors[scope][toolType][lineType]:DoClick(...)
             end
-            TPC:SetPaint(toolEntry, toolType, lineType, false, highligthed)
+            TPC:SetPaint(toolEntry, toolType, lineType, TPC.colors[scope], false, highligthed)
 
         local toolName = vgui.Create( "DLabel", parent)
             toolName:SetSize(toolEntryWidth, toolEntryHeight)
             toolName:SetPos(5, posY)
             toolName:SetText(text)
             toolName:SetTextColor(textColor)
-            table.insert(TPC.fakeToolPanelList[toolType][lineType], toolName)
+            table.insert(TPC.fakeToolPanelList[scope][toolType][lineType], toolName)
 
         if highligthed then
             local tool = vgui.Create( "DLabel", parent)
@@ -327,13 +452,15 @@ local function AddColorSelector(CPanel, colorControls, previewColors)
     end
 end
 
-function TPC:SetFakeToolFontColor(lineTypeIn)
+function TPC:SetFakeToolFontColor(scope, lineTypeIn)
     if lineTypeIn == "font" then
-        for toolType,typeTable in pairs(self.fakeToolPanelList) do
+        for toolType,typeTable in pairs(self.fakeToolPanelList[scope]) do
             for lineType,panelTable in pairs(typeTable) do
                 if lineType ~= "font" then
                     for _,panel in pairs(panelTable) do
-                        panel:SetTextColor(TPC.colors[toolType]["font"])
+                        if panel and panel:IsValid() then
+                            panel:SetTextColor(TPC.colors[scope][toolType]["font"])
+                        end
                     end
                 end
             end
@@ -341,38 +468,54 @@ function TPC:SetFakeToolFontColor(lineTypeIn)
     end
 end
 
-function TPC:CreateMenu(CPanel)
-    if CPanel.Help then -- If testing
+function TPC:CreateMenu(CPanel, buildServerCPanel)
+    local scope = buildServerCPanel and "_sv" or "_cl"
+
+    if CPanel.Help and scope == "_cl" then
         CPanel:Help("Customize your tool panel colors!")
     end
 
-    local colorControls = table.Copy(TPC.colors)
-    local previewColors = table.Copy(TPC.colors)
+    local colorControls = table.Copy(TPC.baseReference)
+    local previewColors = table.Copy(TPC.baseReference)
+    previewColorsAux = previewColors
 
-    AddPresets(CPanel, previewColors)
-    AddColorSelector(CPanel, colorControls, previewColors)
-    self:SetFakeToolFontColor("font")
+    if not game.SinglePlayer() and scope == "_cl" then
+        AddScopeCheckbox(CPanel)
+    end
 
-    if CPanel.Help then -- If testing
-        CPanel:Help("")
+    AddPresets(CPanel, previewColors, scope)
+
+    if not game.SinglePlayer() and scope == "_sv" then
+        AddAdmButtons(CPanel, previewColors, scope)
+    end
+
+    AddColorSelector(CPanel, colorControls, previewColors, scope)
+
+    self:SetFakeToolFontColor(scope, "font")
+
+    if not game.SinglePlayer() then
+        SetPanelsVisibility(self:AreSVColorsEnabled())
     end
 end
 
 hook.Add("PopulateToolMenu", "CreateCMenu", function()
-    local function wrapper(...)
-        TPC:CreateMenu(...)
-    end
+    spawnmenu.AddToolMenuOption("Utilities", "Customization", "TPC", "Tool Panel Colors", "", "", function(CPanel)
+        TPC:CreateMenu(CPanel)
 
-    spawnmenu.AddToolMenuOption("Utilities", "Admin", "TPC", "Tool Panel Colors", "", "", wrapper)
+        if not game.SinglePlayer() and LocalPlayer():IsAdmin() then
+            TPC:CreateMenu(CPanel, true)
+        end
+    end)
 end)
 
 hook.Add("PostReloadToolsMenu", "PaintMenus", function()
     TPC:InitGui()
-    TPC:InitGui() -- HACK: this will force the menu to show the correct colors
+    --TPC:InitGui() -- HACK: this will force the menu to show the correct colors
 end)
 
 function TPC:Test()
-    TPC:InitColors()
+    TPC:InitColors("_cl")
+    TPC:InitColors("_sv")
 
     local test = vgui.Create("DFrame")
         test:SetPos(800, 400)
@@ -386,6 +529,6 @@ function TPC:Test()
         realWhiteBackground:Dock(FILL)
         realWhiteBackground:SetColor(color_white)
 
-    self:CreateMenu(realWhiteBackground)
+    self:CreateMenu(realWhiteBackground, true)
 end
 --TPC:Test() -- Uncomment and save after the map loads
