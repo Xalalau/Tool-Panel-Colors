@@ -77,7 +77,7 @@ function TPC:RefreshPanelColors(scope)
         if previewColorsAux and previewColorsAux[scope] then
             for toolType,tpnl in pairs(previewColorsAux[scope]) do
                 for lineType,lpnl in pairs(tpnl) do
-                    if lpnl and IsValid(lpnl) then
+                    if lpnl and not isbool(lpnl) and IsValid(lpnl) then
                         lpnl:SetColor(TPC.colors[scope][toolType][lineType])
                     end
                     TPC:SetFakeToolFontColor(scope, lineType)
