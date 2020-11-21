@@ -1,12 +1,11 @@
-- Rename "Custom" to "Addon"
-- Font colors are not loading properly when the game starts
-- Close a color mixer when a the selected menu is selected again
-- Add proper multiplayer support:
-	-- Apply the current colors on all players (server/admin)
-	-- Use custom client colors over the server selection (client)
-
-Maybe:
-- Support colors per dcategory (TPC[category].colors)
-- Add tool right side images support
-- Add tool reorganizer
+Future:
+- Change the color of the selected tool
+- Change the color of dcategories
+- Support colors by dCategory (TPC.colors[category]...)
+- Add icon support on the right side of each tool
+- Add tool reorganizer (move, hide and rename tools. Move, hide and create dCategories)
+- Make changes to tools individually 
 - Rename to Tool Panel Customizer
+
+Note: We can sort docked panels by setting their z-position.
+http://wiki.garrysmod.com/page/Panel/SetZPos
