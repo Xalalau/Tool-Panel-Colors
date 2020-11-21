@@ -472,6 +472,7 @@ function TPC:CreateMenu(CPanel, buildServerCPanel)
 
     if CPanel.Help and scope == "_cl" then
         CPanel:Help("Customize your tool panel colors!")
+        CPanel:ControlHelp("You can highlight a tool by right-clicking on it.")
     end
 
     local colorControls = table.Copy(TPC.baseReference)

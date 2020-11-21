@@ -3,7 +3,8 @@
     https://xalalau.com/
 --]]
 
-TPC.version = "1.0"
+TPC.version = "1.1"
+
 TPC.baseReference = {
     ["_sv"] = {
         GMod = {
