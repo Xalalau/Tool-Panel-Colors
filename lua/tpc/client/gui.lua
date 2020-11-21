@@ -509,7 +509,7 @@ end)
 
 hook.Add("PostReloadToolsMenu", "PaintMenus", function()
     TPC:InitGui()
-    --TPC:InitGui() -- HACK: this will force the menu to show the correct colors
+    TPC:InitGui() -- HACK: this will force the menu to show the correct colors
 end)
 
 function TPC:Test()
